@@ -6,8 +6,7 @@ import { db, learners, lessons, favourites, attempts, completions, reviews } fro
 import { and, eq, inArray } from "drizzle-orm";
 import learningRouter from "../routes/learning";
 
-// Isolated HTTP harness: auth is supplied at the same verified-identity boundary
-// as Clerk. Never mount this middleware in the application.
+// Isolated HTTP harness: injects an identity only into this test server.
 test("favourites persist, isolate guest/accounts and hide archived content without changing progress", {
   skip: process.env.RUN_FAVOURITES_INTEGRATION !== "1",
 }, async () => {
@@ -15,7 +14,7 @@ test("favourites persist, isolate guest/accounts and hide archived content witho
   const guest = randomUUID();
   const account = `favourite-test-${suffix}`;
   const otherAccount = `favourite-other-${suffix}`;
-  const identities = [`guest:${guest}`, `clerk:${account}`, `clerk:${otherAccount}`];
+  const identities = [`guest:${guest}`, `account:${account}`, `account:${otherAccount}`];
   const id = `favourite-test-${suffix}`;
   const [source] = await db.select().from(lessons).where(eq(lessons.active, true)).limit(1);
   assert.ok(source, "Seeded active lesson required");
@@ -24,10 +23,7 @@ test("favourites persist, isolate guest/accounts and hide archived content witho
   app.use(express.json());
   app.use((req, _res, next) => {
     const userId = req.get("x-test-account") || null;
-    Object.assign(req, {
-      auth: Object.assign(() => ({ userId, tokenType: "session_token" }), { [Symbol.for("@clerk/express.auth")]: true }),
-      signedCookies: { hudhud_guest: guest },
-    });
+    Object.assign(req, { hudhudAuth: { userId }, signedCookies: { hudhud_guest: guest } });
     next();
   });
   app.use(learningRouter);
@@ -56,7 +52,7 @@ test("favourites persist, isolate guest/accounts and hide archived content witho
     assert.equal((await request(`/favourites/${id}`, "DELETE")).status, 204);
     assert.deepEqual(await list(), []);
     assert.deepEqual((await list(account)).map(l => l.id), [id]);
-    const [owner] = await db.select().from(learners).where(eq(learners.identity, `clerk:${account}`));
+    const [owner] = await db.select().from(learners).where(eq(learners.identity, `account:${account}`));
     assert.ok(owner);
     assert.equal((await db.select().from(favourites).where(and(eq(favourites.learnerId, owner.id), eq(favourites.lessonId, id)))).length, 1);
     for (const table of [attempts, completions, reviews]) {

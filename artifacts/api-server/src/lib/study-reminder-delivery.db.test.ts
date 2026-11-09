@@ -26,7 +26,7 @@ test("study delivery: isolated consent, durable dedup, pause, opt-out, snooze an
     return { statusCode: 201, body: "", headers: {} };
   };
   try {
-    const [learner] = await db.insert(learners).values({ identity: `clerk:${userId}`, preferences: prefs }).returning();
+    const [learner] = await db.insert(learners).values({ identity: `account:${userId}`, preferences: prefs }).returning();
     await db.insert(accessGrants).values({
       userId, enabled: true, expiresAt: new Date(now.getTime() + 3 * 86400000),
       grantedBy: "isolated-test", reason: "Isolated reminder test",
@@ -83,7 +83,7 @@ test("study delivery: isolated consent, durable dedup, pause, opt-out, snooze an
     assert.equal((await db.select().from(renewalDeliveries).where(eq(renewalDeliveries.userId, userId))).length, 0);
   } finally {
     webpush.sendNotification = original;
-    await db.delete(learners).where(eq(learners.identity, `clerk:${userId}`));
+    await db.delete(learners).where(eq(learners.identity, `account:${userId}`));
     await db.delete(accessGrants).where(eq(accessGrants.userId, userId));
     await db.delete(appAccounts).where(eq(appAccounts.userId, userId));
     await pool.end();

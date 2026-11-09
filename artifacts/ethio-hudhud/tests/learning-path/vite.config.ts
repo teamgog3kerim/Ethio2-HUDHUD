@@ -11,7 +11,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, '../../src'),
-      '@clerk/react': path.resolve(import.meta.dirname, 'clerk.ts'),
+      '@/lib/auth': path.resolve(import.meta.dirname, 'auth.ts'),
     },
     dedupe: ['react', 'react-dom', '@tanstack/react-query'],
   },

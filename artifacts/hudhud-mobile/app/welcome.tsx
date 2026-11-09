@@ -1,6 +1,6 @@
 import { Platform, View } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "@clerk/expo";
+import { useAuth } from "@/utils/auth";
 import { Redirect } from "expo-router";
 import { Action, Screen, Txt, styles } from "@/components/LearningUI";
 import { AnimatedHudhud } from "@/components/AnimatedHudhud";

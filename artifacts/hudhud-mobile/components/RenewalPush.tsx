@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, Linking, Platform } from "react-native";
 import Constants from "expo-constants";
-import { useAuth } from "@clerk/expo";
+import { useAuth } from "@/utils/auth";
 import { getReminderDevice, type ReminderDeviceStatus } from "@workspace/api-client-react";
 import { Action, Txt } from "./LearningUI";
 import { disableNativeRenewalPush, nativePushProject, nativeRenewalBinding, syncNativeRenewalPush, retryNativeRenewalRevocations } from "@/utils/renewal-push";

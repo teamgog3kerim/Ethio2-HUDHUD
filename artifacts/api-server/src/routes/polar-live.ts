@@ -1,5 +1,7 @@
 import { Router, type IRouter } from "express";
-import { clerkClient, getAuth } from "@clerk/express";
+import { db, authUsers } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { getAuth } from "../lib/auth";
 import { rateLimit } from "express-rate-limit";
 import {
   CreateLiveCheckoutBody, CreateLiveCheckoutResponse, GetLiveCheckoutParams,
@@ -22,10 +24,11 @@ router.post("/billing/polar/live/checkout", async (req, res): Promise<void> => {
   if (!liveCheckoutEnabled() || (body.data.plan === "monthly" && !liveMonthlyEnabled())) {
     throw new HttpError(503, "الدفع المباشر لهذه الخطة غير مفعّل بعد. لم يتم تحصيل أي رسوم.");
   }
-  const account = await clerkClient.users.getUser(userId);
-  const email = account.emailAddresses.find(e => e.id === account.primaryEmailAddressId && e.verification?.status === "verified")?.emailAddress;
-  if (!email) throw new HttpError(403, "أكّد بريدك الإلكتروني قبل الدفع.");
-  res.json(CreateLiveCheckoutResponse.parse(await createLiveCheckout(userId, email, body.data.plan)));
+  // Polar collects any billing contact details it needs on its hosted checkout.
+  if (!await db.select({ id: authUsers.id }).from(authUsers).where(eq(authUsers.id, userId)).limit(1).then(rows => rows.length)) {
+    throw new HttpError(401, "سجّل الدخول للمتابعة إلى الفوترة.");
+  }
+  res.json(CreateLiveCheckoutResponse.parse(await createLiveCheckout(userId, undefined, body.data.plan)));
 });
 router.get("/billing/polar/live/checkout/:id", async (req, res): Promise<void> => {
   const userId = user(req);

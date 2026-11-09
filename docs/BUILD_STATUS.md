@@ -10,7 +10,8 @@
   separate Expo/native app. Learning still needs an internet connection. The
   network-only service worker never caches learner data or authentication.
 - Expo native companion with Arabic learning screens and device dark/light themes.
-- Managed Clerk sign-up, sign-in and user-isolated persistent learning records.
+- App-managed username/password sign-up and sign-in with user-isolated persistent
+  learning records. Email and Clerk are not required for app access.
 - Protected responsive web administration at `/admin`: a real user directory,
   search/pagination, names/goals, suspension/restore, owner-only admin assignment,
   confirmed full account deletion, expiring complimentary AI grants, settings,
@@ -83,9 +84,9 @@ The source brief requested Prisma; this build preserves the scaffold's Drizzle
 database rather than adding a competing ORM. OpenAPI is the contract; Orval
 generates web/native hooks and Zod schemas from it.
 
-The signed-in identity is provided by Clerk; the browser uses its session cookie
-through the configured proxy. Native uses the Clerk SDK, SecureStore token cache,
-and a bearer token getter. Never put the Clerk secret key in an Expo public variable.
+The signed-in identity is stored in the app's PostgreSQL account tables. Web uses
+an opaque HttpOnly session cookie; native uses an opaque bearer session stored in
+the platform's secure storage. Passwords are stored as salted scrypt hashes.
 
 Guest identities use signed HttpOnly cookies. Every learner-owned query/mutation
 is scoped to the resolved learner. API answers never expose a lesson answer key
@@ -127,10 +128,9 @@ does not update already seeded records; use an explicit reviewed migration/updat
 
 ### Configuration (workspace secrets / environment settings)
 
-See `.env.example` for variable names only; no keys are committed. Clerk and OpenAI
-are provisioned via Replit's supported setup. Database connection and session
-signing secret are server-only. The Expo development command forwards only the
-publishable Clerk key; the build script does the same for release bundles.
+See `.env.example` for variable names only; no keys are committed. OpenAI is
+configured separately for each hosting provider. Database connection, session
+secret, Polar credentials, and owner bootstrap password are server-only.
 
 For a future production deployment, configure the real published API domain for
 Expo's `EXPO_PUBLIC_DOMAIN` through the build environment. The current development
@@ -139,14 +139,14 @@ URL. Register native redirect URLs and store bundle identifiers before release.
 
 ### Manual verification / mobile release checklist
 
-1. Create a fresh account, verify email and finish onboarding.
+1. Create a fresh account with full name, username, and password, then finish onboarding.
 2. Complete a lesson, restart the app and confirm progress survives.
 3. Sign in to that account on the other client and confirm the same progress.
 4. Use another account and confirm no previous learner records appear.
 5. Verify wrong answers, retry, duplicate submission, one-time XP and quiz errors.
 6. Verify SRS due times, midnight/streak boundaries and the selected timezone.
-7. Test Google SSO, password recovery, client-trust email verification and cancellation
-   on physical iOS and Android devices; do not claim these from an anonymous screenshot.
+7. Test username/password sign-in and secure-session persistence on physical iOS
+   and Android devices; email-based recovery is not provided.
 8. Test font scaling, Fidel glyph rendering, Arabic reading order, keyboard movement,
    long lessons, dark mode and small screens.
 9. Grant/deny local notification permission; change reminder time, sign out, travel

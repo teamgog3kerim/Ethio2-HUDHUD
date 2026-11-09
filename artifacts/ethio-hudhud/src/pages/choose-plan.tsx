@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { createLiveCheckout, createLivePortal, createSandboxCheckout, getLiveCheckout } from '@workspace/api-client-react';

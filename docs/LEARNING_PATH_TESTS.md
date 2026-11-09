@@ -27,7 +27,7 @@ This command fails on any failing layer. It runs:
   archive, or modify curriculum records.
 - Port 4179 must be free. Playwright starts and stops its own test-only Vite server;
   it deliberately refuses to reuse an existing server. Normal app workflows and
-  Clerk access are not needed for the browser tests.
+  signed-in access are not needed for the browser tests.
 
 ## Scenarios
 
@@ -54,7 +54,7 @@ This command fails on any failing layer. It runs:
 ## Isolation and scope
 
 The browser suite uses the **real Dashboard, Learn, Lesson, Account and Premium pages, Shell, React Query
-hooks, Wouter links, language provider, timer, and production CSS**. Only Clerk
+hooks, Wouter links, language provider, timer, and production CSS**. Only auth
 hooks are replaced by a test-only identity adapter. Each browser test gets a new
 browser context and its own in-memory API records, based on the real curriculum
 seed. The records survive that test's reloads but cannot reach any database or
@@ -66,7 +66,7 @@ synthetic account identities and one guest), holds responses after the database
 transaction, then reads as the incoming account or signed-out guest. It verifies
 zero incoming credit and stable original completion IDs, timestamps and XP before
 and after delivery. Only those learners and their cascading records are deleted.
-These tests simulate trusted identity boundaries, not Clerk login itself.
+These tests simulate the app's identity boundary, not a production account login.
 
 Browser grading responses are a contract double, not evidence of backend grading.
 The separate integration test mounts the **real learning router** with a trusted
@@ -84,13 +84,13 @@ Pure scheduling tests cover local-midnight and DST boundaries, leap days,
 weekday distribution, paused-week freezing and overdue-versus-progress separation.
 
 The test server and guest adapters are not imported by the normal app entry.
-These checks do not cover Clerk sign-in, published deployment routing, or a
+These checks do not cover live account sign-in, published deployment routing, or a
 single browser-to-database end-to-end session.
 
 ## Learning progress across identities
 
 The three progress-identity scenarios exercise the same
-`ClerkQueryClientCacheInvalidator` mounted in `src/App.tsx`, not a test-only cache
+`AuthQueryCacheInvalidator` mounted in `src/App.tsx`, not a test-only cache
 reset. The test-only entry adds Dashboard so XP comes from the real progress hook
 and resume links come from the real Dashboard and Learn pages.
 
@@ -114,7 +114,7 @@ pnpm --filter @workspace/ethio-hudhud exec tsc -p tests/learning-path/tsconfig.j
 pnpm --filter @workspace/ethio-hudhud exec playwright test --config tests/learning-path/playwright.config.ts progress-identity.spec.ts
 ```
 
-These are isolated provider/cache tests, not evidence of Clerk's sign-in UI or
+These are isolated provider/cache tests, not evidence of the production sign-in UI or
 server token/ownership enforcement. Each test has three separate in-memory
 records; all API calls fail closed outside the configured GET endpoints. The
 synthetic identity persists in session storage across reloads and travels in a
@@ -149,14 +149,14 @@ of the full learning-path command:
 These use the production account-change cache handler. Clearing cache entries
 alone does not reset already-mounted query observers; the handler resets queries
 and refetches active views so another identity cannot retain their visible data.
-The test-only Clerk adapter emits listener events and persists its synthetic
+The test-only auth adapter emits listener events and persists its synthetic
 identity across reloads. A test-only cookie carries that identity to the strict
 in-memory route fixture; it is not an authentication cookie recognized by the app.
 Separate save sets for guest and each account and an independent archived set
 survive reloads within a test, never across tests. No real accounts or curriculum
 records are created, modified or archived. Backend identity/archive enforcement
 remains covered by the existing favourites integration tests; these browser
-checks are evidence of client/UI behavior, not real Clerk login or database
+checks are evidence of client/UI behavior, not real account login or database
 persistence. Completion and lesson-navigation behavior are outside their scope.
 
 ## Trial and pricing browser regressions
@@ -210,7 +210,7 @@ Vite root is in the test directory. This keeps responsive visibility and skeleto
 height representative of the app instead of testing unstyled markup.
 With responsive utilities applied, the existing mobile favourites sign-out check
 uses the real Account page instead of the desktop-only sidebar button.
-These checks do not test Clerk's signup UI, a real paid subscription, a payment
+These checks do not test production signup, a real paid subscription, a payment
 provider, or browser-to-database billing persistence. Polar stays deferred and
 checkout/enforcement remain disabled.
 

@@ -165,8 +165,7 @@ export interface AdminBillingRecord {
 
 export interface AdminUser {
   id: string;
-  email: string;
-  emailVerified: boolean;
+  username: string;
   displayName: string;
   role: AdminUserRole;
   suspended: boolean;
@@ -231,12 +230,69 @@ export interface AdminUserUpdate {
 }
 
 export interface AdminUserDelete {
-  confirmationEmail: string;
+  confirmationUsername: string;
   /**
      * @minLength 3
      * @maxLength 500
      */
   reason: string;
+}
+
+export interface AuthUser {
+  id: string;
+  fullName: string;
+  username: string;
+  createdAt: string;
+  /** @nullable */
+  lastSignInAt: string | null;
+}
+
+export interface AuthSession {
+  isSignedIn: boolean;
+  user: AuthUser | null;
+  /** Present only for secure native-client sessions. */
+  accessToken?: string;
+}
+
+export interface AccountRegistration {
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  fullName: string;
+  /** @pattern ^[A-Za-z0-9_]{3,24}$ */
+  username: string;
+  /**
+     * @minLength 10
+     * @maxLength 128
+     */
+  password: string;
+}
+
+export interface AccountLogin {
+  /**
+     * @minLength 3
+     * @maxLength 24
+     */
+  username: string;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     */
+  password: string;
+}
+
+export interface PasswordChange {
+  /**
+     * @minLength 1
+     * @maxLength 128
+     */
+  currentPassword: string;
+  /**
+     * @minLength 10
+     * @maxLength 128
+     */
+  newPassword: string;
 }
 
 export interface AdminAccessGrant {

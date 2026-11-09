@@ -9,7 +9,7 @@ export const lessons = [...courseSeed].sort((a, b) => a.month - b.month)
 export const identities: Identity[] = [null, 'progress-a', 'progress-b'];
 
 export async function switchIdentity(page: Page, identity: Identity) {
-  // Only the isolated Clerk adapter and this route fixture recognize this cookie.
+  // Only the isolated auth adapter and this route fixture recognize this cookie.
   // Update transport identity before the production listener starts refetching.
   await page.evaluate(id => {
     document.cookie = id ? `test-identity=${id}; Path=/` : 'test-identity=; Max-Age=0; Path=/';

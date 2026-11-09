@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
+import { getAuth } from "../lib/auth";
 import { db, learners, renewalDevices } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { createHash } from "node:crypto";

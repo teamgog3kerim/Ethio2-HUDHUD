@@ -6,7 +6,7 @@ import { SendChatBody, SendChatResponse, GetChatResponse } from "@workspace/api-
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { getLearner } from "../lib/learner";
 import { randomUUID } from "node:crypto";
-import { getAuth } from "@clerk/express";
+import { getAuth } from "../lib/auth";
 import { getAppSettings, getAccessState } from "../lib/app-settings";
 import { arabicTutorText } from "@workspace/db/pronunciation";
 const router: IRouter = Router();

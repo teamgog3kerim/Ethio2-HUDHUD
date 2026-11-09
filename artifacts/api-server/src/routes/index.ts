@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
 import learningRouter from "./learning";
 import tutorRouter from "./tutor";
 import renewalRouter from "./renewal";
@@ -18,6 +19,7 @@ import { GetCourseCatalogResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
+router.use(authRouter);
 router.use(healthRouter);
 router.get("/course-catalog", async (_req, res) => {
   const outlines = await db.select({

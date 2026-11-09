@@ -1,11 +1,8 @@
 import { getGetAdminAccessQueryKey, useGetAdminAccess } from '@workspace/api-client-react';
-import { useMemo, type ReactNode } from 'react';
-import { ClerkProvider, Show, useAuth } from '@clerk/react';
-import { publishableKeyFromHost } from '@clerk/react/internal';
-import { shadcn } from '@clerk/themes';
-import { arSA, enUS } from '@clerk/localizations';
+import { type ReactNode } from 'react';
+import { useAuth } from '@/lib/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkQueryClientCacheInvalidator } from '@/components/clerk-query-cache-invalidator';
+import { AuthQueryCacheInvalidator } from '@/components/auth-query-cache-invalidator';
 import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -45,66 +42,7 @@ import { VisitorPageviewTracker } from '@/components/visitor-pageview-tracker';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-
-function stripBase(path: string): string {
-  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || '/' : path;
-}
-
-if (!clerkPubKey) {
-  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
-}
-
-function buildAppearance(dark: boolean) {
-  const card = dark ? '#10201b' : '#FBFCF8';
-  const fg = dark ? '#EEF1E8' : '#0F2A23';
-  const muted = dark ? '#A5B3AB' : '#4E6860';
-  return {
-    theme: shadcn,
-    cssLayerName: 'clerk',
-    options: {
-      logoPlacement: 'inside' as const,
-      logoLinkUrl: basePath || '/',
-      logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
-    },
-    variables: {
-      colorPrimary: dark ? '#3FA386' : '#176B55',
-      colorForeground: fg,
-      colorMutedForeground: muted,
-      colorDanger: dark ? '#E57A68' : '#B3402F',
-      colorBackground: card,
-      colorInput: dark ? '#0B1613' : '#FFFFFF',
-      colorInputForeground: fg,
-      colorNeutral: dark ? '#C9D6CE' : '#104C3D',
-      fontFamily: "'IBM Plex Sans Arabic', 'Noto Sans Ethiopic', sans-serif",
-      borderRadius: '1rem',
-    },
-    elements: {
-      rootBox: 'w-full flex justify-center',
-      cardBox: `rounded-3xl w-[440px] max-w-full overflow-hidden border border-[#E6B85C]/60 shadow-xl`,
-      card: '!shadow-none !border-0 !bg-transparent !rounded-none',
-      footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
-      headerTitle: { color: fg, fontFamily: "'Noto Kufi Arabic', sans-serif", fontWeight: 800 },
-      headerSubtitle: { color: muted },
-      socialButtonsBlockButtonText: { color: fg, fontWeight: 600 },
-      formFieldLabel: { color: fg, fontWeight: 600 },
-      footerActionLink: { color: dark ? '#E6B85C' : '#176B55', fontWeight: 700 },
-      footerActionText: { color: muted },
-      dividerText: { color: muted },
-      identityPreviewEditButton: { color: dark ? '#E6B85C' : '#176B55' },
-      formFieldSuccessText: { color: dark ? '#7fd1b3' : '#176B55' },
-      alertText: { color: fg },
-      logoBox: { height: '56px', justifyContent: 'center' },
-      logoImage: { height: '56px' },
-      formButtonPrimary: { backgroundColor: dark ? '#3FA386' : '#176B55', color: dark ? '#06130f' : '#F7F8F5', fontWeight: 700, borderRadius: '1rem' },
-    },
-  };
-}
 
 function StartRedirect() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -119,12 +57,9 @@ function StartRedirect() {
 }
 
 function HomeRedirect() {
-  return (
-    <>
-      <Show when="signed-in"><Redirect to="/start" /></Show>
-      <Show when="signed-out"><Landing /></Show>
-    </>
-  );
+  const { isLoaded, isSignedIn } = useAuth();
+  if (!isLoaded) return <div className="mx-auto max-w-lg p-8" role="status"><Skeleton className="h-36" /></div>;
+  return isSignedIn ? <Redirect to="/start" /> : <Landing />;
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
@@ -132,31 +67,10 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
-function ClerkProviderWithRoutes() {
-  const [, setLocation] = useLocation();
-  const { dark, lang } = useApp();
-  const appearance = useMemo(() => buildAppearance(dark), [dark]);
-  const ar = lang === 'ar';
-  const locale = ar ? arSA : enUS;
+function AppRoutes() {
   return (
-    <ClerkProvider
-      publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
-      appearance={appearance}
-      signInUrl={`${basePath}/sign-in`}
-      signUpUrl={`${basePath}/sign-up`}
-      localization={{
-        ...locale,
-        formFieldInputPlaceholder__emailAddress: ar ? 'أدخل بريدك الإلكتروني' : 'Enter your email address',
-        formFieldInputPlaceholder__password: ar ? 'أدخل كلمة المرور' : 'Enter your password',
-        formFieldInputPlaceholder__signUpPassword: ar ? 'أنشئ كلمة مرور قوية' : 'Create a password',
-        signIn: { ...locale.signIn, start: { ...locale.signIn?.start, title: ar ? 'أهلًا بعودتك' : 'Welcome back', subtitle: ar ? 'سجّل الدخول لمتابعة تعلّمك' : 'Sign in to continue learning' } },
-        signUp: { ...locale.signUp, start: { ...locale.signUp?.start, title: ar ? 'أنشئ حسابك' : 'Create your account', subtitle: ar ? 'احفظ تقدّمك في الأمهرية' : 'Keep your Amharic progress' } },
-      }}
-      routerPush={(to) => setLocation(stripBase(to))}
-      routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
-    >
-      <ClerkQueryClientCacheInvalidator />
+    <>
+      <AuthQueryCacheInvalidator />
       <VisitorPageviewTracker />
       <RenewalIdentityBoundary />
       <StudyPushIdentityBoundary />
@@ -194,7 +108,7 @@ function ClerkProviderWithRoutes() {
         </Switch>
         </CourseAccessGate>
       </RoutedErrorBoundary>
-    </ClerkProvider>
+    </>
   );
 }
 
@@ -204,7 +118,7 @@ function App() {
       <AppProvider>
         <TooltipProvider>
           <WouterRouter base={basePath}>
-            <ClerkProviderWithRoutes />
+            <AppRoutes />
           </WouterRouter>
           <StartupWelcome />
           <Toaster />

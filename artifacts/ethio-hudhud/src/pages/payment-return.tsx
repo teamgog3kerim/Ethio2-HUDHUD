@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Redirect, useLocation } from 'wouter';

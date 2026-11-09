@@ -3,9 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { clerkMiddleware, getAuth } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
-import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
+import { authSessionMiddleware, getAuth } from "./lib/auth";
 import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 import { HttpError } from "./lib/http-error";
@@ -37,7 +35,6 @@ app.use(
   }),
 );
 app.set("trust proxy", 1);
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 function normalizeOrigin(value: string): string | undefined {
   const candidate = value.trim();
   if (!candidate) return;
@@ -55,7 +52,7 @@ const allowedOrigins = new Set([
   ...(process.env.REPLIT_DOMAINS ?? "").split(","),
 ].filter((origin): origin is string => !!origin).map(normalizeOrigin).filter((origin): origin is string => !!origin));
 app.use(cors({ credentials: true, origin: (origin, callback) => callback(null, !!origin && allowedOrigins.has(origin)) }));
-// Raw signed payload, before JSON parsing, Clerk auth and browser CSRF checks.
+// Raw signed provider payload, before JSON parsing and browser CSRF checks.
 app.post("/api/billing/polar/live/webhook",
   rateLimit({ windowMs: 60_000, limit: 600, standardHeaders: "draft-7", legacyHeaders: false }),
   express.raw({ type: "application/json", limit: "128kb" }),
@@ -81,17 +78,14 @@ app.post("/api/billing/polar/sandbox/webhook", express.raw({ type: "application/
 app.use(express.json({ limit: "128kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
-app.use(clerkMiddleware((req) => ({
-  publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
-})));
+app.use("/api", authSessionMiddleware());
 app.use("/api", rateLimit({ windowMs: 60_000, limit: 180, standardHeaders: "draft-7", legacyHeaders: false }));
 app.use("/api", (req, res, next) => {
   const site = req.get("sec-fetch-site");
   const origin = req.get("origin");
-  const requestHost = getClerkProxyHost(req);
-  const sameOrigin = !origin || origin === `https://${requestHost}` || origin === `http://${requestHost}` || allowedOrigins.has(origin);
-  const validBearer = req.get("authorization")?.startsWith("Bearer ") && !!getAuth(req).userId;
-  if (!["GET", "HEAD", "OPTIONS"].includes(req.method) && !validBearer && (!sameOrigin || (site === "cross-site" && !origin))) {
+  const requestOrigin = `${req.protocol}://${req.get("host")}`;
+  const sameOrigin = !origin || origin === requestOrigin || allowedOrigins.has(origin);
+  if (!["GET", "HEAD", "OPTIONS"].includes(req.method) && (!sameOrigin || (site === "cross-site" && !origin))) {
     res.status(403).json({ error: "Cross-site request rejected" }); return;
   }
   res.setHeader("Cache-Control", "no-store");

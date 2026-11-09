@@ -3,9 +3,8 @@ import { createECDH } from "node:crypto";
 const required = [
   "DATABASE_URL",
   "SESSION_SECRET",
-  "ADMIN_BOOTSTRAP_EMAIL",
-  "CLERK_SECRET_KEY",
-  "CLERK_PUBLISHABLE_KEY",
+  "ADMIN_BOOTSTRAP_USERNAME",
+  "ADMIN_BOOTSTRAP_PASSWORD",
   "OPENAI_API_KEY",
   "POLAR_LIVE_ACCESS_TOKEN",
   "POLAR_LIVE_WEBHOOK_SECRET",
@@ -22,8 +21,12 @@ if (process.env.SESSION_SECRET && Buffer.byteLength(process.env.SESSION_SECRET) 
   invalid.push("SESSION_SECRET (must be at least 32 bytes)");
 }
 
-if (process.env.ADMIN_BOOTSTRAP_EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(process.env.ADMIN_BOOTSTRAP_EMAIL.trim())) {
-  invalid.push("ADMIN_BOOTSTRAP_EMAIL (must be a valid email address)");
+if (process.env.ADMIN_BOOTSTRAP_USERNAME && !/^[A-Za-z0-9_]{3,24}$/.test(process.env.ADMIN_BOOTSTRAP_USERNAME.trim())) {
+  invalid.push("ADMIN_BOOTSTRAP_USERNAME (must contain 3 to 24 letters, digits, or underscores)");
+}
+
+if (process.env.ADMIN_BOOTSTRAP_PASSWORD && (process.env.ADMIN_BOOTSTRAP_PASSWORD.length < 12 || process.env.ADMIN_BOOTSTRAP_PASSWORD.length > 128)) {
+  invalid.push("ADMIN_BOOTSTRAP_PASSWORD (must be 12 to 128 characters)");
 }
 
 if (process.env.DATABASE_URL) {

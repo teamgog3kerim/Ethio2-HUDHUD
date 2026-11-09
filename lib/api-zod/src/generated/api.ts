@@ -12,6 +12,100 @@ export const HealthCheckResponse = zod.object({
 })
 
 
+export const GetAuthSessionResponse = zod.object({
+  "isSignedIn": zod.boolean(),
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "username": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "lastSignInAt": zod.coerce.date().nullable()
+}),zod.null()]),
+  "accessToken": zod.string().optional().describe('Present only for secure native-client sessions.')
+})
+
+
+export const registerAccountBodyFullNameMin = 2;
+export const registerAccountBodyFullNameMax = 80;
+
+export const registerAccountBodyUsernameRegExp = new RegExp('^[A-Za-z0-9_]{3,24}$');
+export const registerAccountBodyPasswordMin = 10;
+export const registerAccountBodyPasswordMax = 128;
+
+
+
+export const RegisterAccountBody = zod.object({
+  "fullName": zod.string().min(registerAccountBodyFullNameMin).max(registerAccountBodyFullNameMax),
+  "username": zod.string().regex(registerAccountBodyUsernameRegExp),
+  "password": zod.string().min(registerAccountBodyPasswordMin).max(registerAccountBodyPasswordMax)
+})
+
+export const RegisterAccountResponse = zod.object({
+  "isSignedIn": zod.boolean(),
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "username": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "lastSignInAt": zod.coerce.date().nullable()
+}),zod.null()]),
+  "accessToken": zod.string().optional().describe('Present only for secure native-client sessions.')
+})
+
+
+export const loginAccountBodyUsernameMin = 3;
+export const loginAccountBodyUsernameMax = 24;
+
+export const loginAccountBodyPasswordMax = 128;
+
+
+
+export const LoginAccountBody = zod.object({
+  "username": zod.string().min(loginAccountBodyUsernameMin).max(loginAccountBodyUsernameMax),
+  "password": zod.string().min(1).max(loginAccountBodyPasswordMax)
+})
+
+export const LoginAccountResponse = zod.object({
+  "isSignedIn": zod.boolean(),
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "username": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "lastSignInAt": zod.coerce.date().nullable()
+}),zod.null()]),
+  "accessToken": zod.string().optional().describe('Present only for secure native-client sessions.')
+})
+
+
+export const LogoutAccountResponse = zod.object({
+  "isSignedIn": zod.boolean(),
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "username": zod.string(),
+  "createdAt": zod.coerce.date(),
+  "lastSignInAt": zod.coerce.date().nullable()
+}),zod.null()]),
+  "accessToken": zod.string().optional().describe('Present only for secure native-client sessions.')
+})
+
+
+export const changeAccountPasswordBodyCurrentPasswordMax = 128;
+
+export const changeAccountPasswordBodyNewPasswordMin = 10;
+export const changeAccountPasswordBodyNewPasswordMax = 128;
+
+
+
+export const ChangeAccountPasswordBody = zod.object({
+  "currentPassword": zod.string().min(1).max(changeAccountPasswordBodyCurrentPasswordMax),
+  "newPassword": zod.string().min(changeAccountPasswordBodyNewPasswordMin).max(changeAccountPasswordBodyNewPasswordMax)
+})
+
+export const ChangeAccountPasswordResponse = zod.unknown()
+
+
 export const getProfileResponseOneDisplayNameMax = 80;
 
 export const getProfileResponseOneGoalsMax = 7;
@@ -1063,8 +1157,7 @@ export const GetAdminUsersQueryParams = zod.object({
 export const GetAdminUsersResponse = zod.object({
   "users": zod.array(zod.object({
   "id": zod.string(),
-  "email": zod.string(),
-  "emailVerified": zod.boolean(),
+  "username": zod.string(),
   "displayName": zod.string(),
   "role": zod.enum(['owner', 'admin', 'learner']),
   "suspended": zod.boolean(),
@@ -1139,7 +1232,7 @@ export const deleteAdminUserBodyReasonMax = 500;
 
 
 export const DeleteAdminUserBody = zod.object({
-  "confirmationEmail": zod.string(),
+  "confirmationUsername": zod.string(),
   "reason": zod.string().min(deleteAdminUserBodyReasonMin).max(deleteAdminUserBodyReasonMax)
 })
 

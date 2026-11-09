@@ -4,10 +4,9 @@
 - [Expo DevTools warning](expo-devtools-environment.md) — missing desktop Linux libraries can disable optional DevTools while Metro continues serving normally.
 - [Expo build resources](expo-build-resources.md) — workspace success can conceal smaller publishing budgets; verify cold-cache native builds with bounded resources.
 - [Web-first distribution](web-distribution.md) — domain-hosted web app with Android/iOS installation; the same mobile-friendly web app serves learners and admins.
-- [Deleted identity tokens](deleted-session-tokens.md) — provider deletion does not instantly invalidate old JWTs; tombstones must block data recreation.
+- [Deleted identity sessions](deleted-session-tokens.md) — revoke sessions and retain tombstones so deleted accounts cannot recreate learning records.
 - [Shared React contexts](shared-react-contexts.md) — pnpm peer splits can duplicate context libraries in production even when preview works; verify bundle deduplication.
 - [Workflow child ports](workflow-child-ports.md) — merge restarts can leave older API/Expo children holding ports; verify the listener before restarting again.
-- [Clerk Arabic localization](clerk-localization.md) — the official Arabic locale has gaps; check sign-in and sign-up separately instead of assuming complete translation.
 - [Favourite identity boundaries](favourite-identity-boundaries.md) — guest saves stay separate from account saves; any future transfer needs explicit learner consent.
 - [Learning regression isolation](learning-regression-isolation.md) — separate browser doubles from real grading/persistence; keep test identities isolated and use Nix-wrapped Chromium on Replit.
 - [Study scheduling](study-scheduling.md) — 180 calendar days; separate reminder consent, no automatic progress, and an active runner for closed-app delivery.
@@ -17,3 +16,4 @@
 - [Learner UX principles](learner-ux-principles.md) — simple choices, familiar mobile navigation, clear hierarchy, progressive disclosure and reassuring outcomes.
 - [Unpaid checkout switching](unpaid-checkout-switching.md) — resume the original session; switching waits for provider-confirmed retirement, never a local expiry.
 - [GitHub repository pushes](github-repository-pushes.md) — HTTPS pushes may route through Replit’s Git mirror; verify the target refs and pushed commit.
+- [Username/password accounts](username-password-auth.md) — App sign-in uses full name, username, and password only; no email or Clerk.

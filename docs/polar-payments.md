@@ -23,7 +23,7 @@ operate when `NODE_ENV=production`.
 The owner has saved `POLAR_LIVE_WEBHOOK_SECRET` through secure secret tooling.
 `POST /api/billing/polar/live/webhook` now validates exact raw request bytes with
 the official Polar SDK before durable insertion into a separate live receipt
-queue. It runs before browser CSRF and Clerk sign-in middleware. It is not
+queue. It runs before browser CSRF and app sign-in middleware. It is not
 protected by a learner login; its authentication is the webhook signature.
 
 HTTP 202 means **receipt durably stored or duplicate acknowledged**, not payment
@@ -52,8 +52,9 @@ been performed or authorized for the agent.
 Checkout creates a durable intent before calling Polar. Ambiguous timeouts stay
 unresolved instead of being blindly retried; the worker can recover the
 account-bound intent from checkout metadata. An existing active subscription or
-unresolved purchase blocks another checkout. Only verified primary email is
-forwarded, never a browser-supplied customer ID, price, or return origin.
+unresolved purchase blocks another checkout. The app does not require or forward
+an account email; Polar's hosted checkout collects payment contact details as
+needed. Never accept a browser-supplied customer ID, price, or return origin.
 
 The worker retries durable receipts and polls purchases independently of event
 delivery. It starts on service startup and ticks while the process runs; this is

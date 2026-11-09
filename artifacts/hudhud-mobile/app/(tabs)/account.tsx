@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, Platform, Share, Switch, TextInput, View } from "react-native";
-import { useAuth, useClerk } from "@clerk/expo";
+import { useAuth, useAuthActions } from "@/utils/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetProfile, useSaveProfile, useClearChat, useDeleteAccount, exportAccount, type Profile } from "@workspace/api-client-react";
 import * as Notifications from "expo-notifications";
@@ -21,7 +21,7 @@ export default function Account() {
 }
 function Preferences({ profile }: { profile: Profile }) {
   const c = useColors(); const inset = useSafeAreaInsets(); const qc = useQueryClient();
-  const { signOut } = useClerk(); const { userId } = useAuth();
+  const { signOut } = useAuthActions(); const { userId } = useAuth();
   const save = useSaveProfile(); const clear = useClearChat(); const remove = useDeleteAccount();
   const [form, setForm] = useState(profile);
   const [notice, setNotice] = useState("");

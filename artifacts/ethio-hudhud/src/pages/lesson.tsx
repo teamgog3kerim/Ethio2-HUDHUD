@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { Link, useParams } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { Check, Eye, EyeOff, ChevronLeft, ChevronRight, Lock, RotateCw, Timer, X } from 'lucide-react';

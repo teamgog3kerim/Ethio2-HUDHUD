@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import { getAuth } from "@clerk/express";
+import { getAuth } from "./auth";
 import { isCourseResource } from "./billing-policy";
 import { billingStatus } from "./billing-status";
 import { getLearner } from "./learner";

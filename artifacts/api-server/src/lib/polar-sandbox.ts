@@ -50,7 +50,7 @@ async function assertUsable(userId: string) {
   const [account] = await db.select().from(appAccounts).where(eq(appAccounts.userId, userId));
   if (account?.deletedAt || account?.suspended) throw new HttpError(403, "هذا الحساب غير متاح للدفع.");
 }
-export async function createSandboxCheckout(userId: string, email: string, plan: SandboxPlan) {
+export async function createSandboxCheckout(userId: string, email: string | undefined, plan: SandboxPlan) {
   await assertUsable(userId);
   const { api, origin, products } = config();
   const product = await polarCall(() => api.products.get(products[plan]));
@@ -69,7 +69,8 @@ export async function createSandboxCheckout(userId: string, email: string, plan:
     }
     const checkout = await polarCall(() => api.checkouts.create({
       products: [products[plan]], external_customer_id: sandboxCustomerId(userId),
-      customer_email: email, allow_discount_codes: false, allow_trial: false, currency: "usd",
+      ...(email ? { customer_email: email } : {}),
+      allow_discount_codes: false, allow_trial: false, currency: "usd",
       metadata: { application: "hudhud", environment: "sandbox", plan },
       success_url: `${origin}/billing/return?checkout_id={CHECKOUT_ID}`,
       return_url: `${origin}/billing/cancel`,

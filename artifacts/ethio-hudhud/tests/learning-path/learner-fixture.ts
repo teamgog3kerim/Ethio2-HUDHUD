@@ -10,7 +10,7 @@ export const boundary = orderedLessons.filter(l => l.courseId === orderedCourses
 export const afterBoundary = orderedLessons[orderedLessons.indexOf(boundary) + 1]!;
 
 // Each test owns this in-memory learner. It survives page reloads, but cannot
-// access a database, Clerk account or the running application's API.
+// access a database, production account or the running application's API.
 export const test = base.extend<{ learner: {
   completed: Set<string>;
   submissions: { id: string; answers: number[] }[];

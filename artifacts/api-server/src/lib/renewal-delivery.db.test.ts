@@ -21,8 +21,8 @@ test("verified reminder delivery: dedup, cancellation, accounts, failure and del
   let calls = 0;
   webpush.sendNotification = async () => { calls++; return { statusCode: 201, body: "", headers: {} }; };
   try {
-    const [learner] = await db.insert(learners).values({ identity: `clerk:${userId}` }).returning();
-    const [otherLearner] = await db.insert(learners).values({ identity: `clerk:${other}` }).returning();
+    const [learner] = await db.insert(learners).values({ identity: `account:${userId}` }).returning();
+    const [otherLearner] = await db.insert(learners).values({ identity: `account:${other}` }).returning();
     assert.ok(learner && otherLearner);
     const [device] = await db.insert(renewalDevices).values({
       id: randomUUID(), learnerId: learner.id, userId, channel: "web",
@@ -99,7 +99,7 @@ test("verified reminder delivery: dedup, cancellation, accounts, failure and del
     assert.equal((await db.select().from(renewalDeliveries).where(eq(renewalDeliveries.userId, userId))).length, 0);
   } finally {
     webpush.sendNotification = original;
-    await db.delete(learners).where(inArray(learners.identity, users.map(u => `clerk:${u}`)));
+    await db.delete(learners).where(inArray(learners.identity, users.map(u => `account:${u}`)));
     await db.delete(accessGrants).where(inArray(accessGrants.userId, users));
     await db.delete(appAccounts).where(inArray(appAccounts.userId, users));
     await pool.end();

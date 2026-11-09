@@ -4,7 +4,7 @@ import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
 import { Platform, StyleSheet } from "react-native";
-import { useAuth } from "@clerk/expo";
+import { useAuth } from "@/utils/auth";
 import { useColors } from "@/hooks/useColors";
 import { Loading } from "@/components/LearningUI";
 const items = [

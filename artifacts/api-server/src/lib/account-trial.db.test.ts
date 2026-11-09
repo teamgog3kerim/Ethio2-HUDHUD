@@ -9,7 +9,7 @@ test("account activation starts 48h, marketing visits do not, and old trials nev
   const guestId = randomUUID();
   const userId = `isolated-account-trial-${randomUUID()}`;
   const [guest, account] = await db.insert(learners).values([
-    { identity: `guest:${guestId}` }, { identity: `clerk:${userId}` },
+    { identity: `guest:${guestId}` }, { identity: `account:${userId}` },
   ]).returning();
   const ids = [guest!.id, account!.id];
   try {

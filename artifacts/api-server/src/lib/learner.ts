@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { getAuth } from "@clerk/express";
+import { getAuth } from "./auth";
 import { db, learners } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { Request, Response } from "express";
@@ -22,7 +22,7 @@ export async function getLearner(req: Request, res: Response) {
     guest = randomUUID();
     res.cookie("hudhud_guest", guest, { signed: true, httpOnly: true, sameSite: "lax", secure: req.secure, maxAge: 365 * 86400000, path: "/api" });
   }
-  const identity = userId ? `clerk:${userId}` : `guest:${guest}`;
+  const identity = userId ? `account:${userId}` : `guest:${guest}`;
   const [existing] = await db.select().from(learners).where(eq(learners.identity, identity));
   if (!existing) {
     const settings = await getAppSettings();

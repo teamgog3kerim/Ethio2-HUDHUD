@@ -77,7 +77,7 @@ test('favourites: guest, signed-out and switched accounts never display another 
   await openSaved(page);
   await expect(saved(page).getByRole('link')).toHaveCount(2);
 
-  // Actual sign-out confirmation UI, with only the Clerk SDK substituted.
+  // Actual sign-out confirmation UI, with only the auth adapter substituted.
   if (page.viewportSize()!.width < 1024) {
     await page.getByTestId('nav-account-mobile').click();
     await page.getByTestId('button-signout-account').click();

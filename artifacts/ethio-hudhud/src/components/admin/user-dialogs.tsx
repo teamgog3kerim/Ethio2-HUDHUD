@@ -38,7 +38,7 @@ export function EditDialog({ user, viewerRole, isSelf, onClose, onDone }: Props)
   return (
     <Modal title={t('تعديل الحساب', 'Edit account')} onClose={onClose}>
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); submit(); }}>
-        <p className="text-sm text-muted-foreground" dir="ltr">{user.email}</p>
+        <p className="text-sm text-muted-foreground" dir="ltr">@{user.username}</p>
         <Field label={t('الاسم', 'Display name')}><input className={fieldCls} value={name} maxLength={80} onChange={(e) => setName(e.target.value)} data-testid="input-user-name" /></Field>
         <Field label={t('الهدف اليومي (دقيقة)', 'Daily goal (minutes)')}><input type="number" min={5} max={180} className={fieldCls} value={goal} onChange={(e) => setGoal(Number(e.target.value))} data-testid="input-user-goal" /></Field>
         <Field label={t('الدور', 'Role')} hint={viewerRole === 'owner' ? undefined : t('المالك وحده يغيّر الأدوار.', 'Only the owner can change roles.')}>
@@ -109,7 +109,7 @@ export function AccessDialog({ user, onClose, onDone }: Props) {
 export function DeleteDialog({ user, onClose, onDone }: Props) {
   const { t } = useApp();
   const qc = useQueryClient();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [reason, setReason] = useState('');
   const [err, setErr] = useState('');
   const m = useDeleteAdminUser({
@@ -118,19 +118,19 @@ export function DeleteDialog({ user, onClose, onDone }: Props) {
       onError: (e) => setErr(errMsg(e, t('تعذّر الحذف.', 'Deletion failed.'))),
     },
   });
-  const ok = email.trim() === user.email && reason.trim().length >= 3;
+  const ok = username.trim().toLowerCase() === user.username.toLowerCase() && reason.trim().length >= 3;
   return (
     <Modal title={t('حذف الحساب نهائيًا', 'Permanently delete account')} onClose={onClose} tone="danger">
       <div className="space-y-4">
         <Notice kind="err">{t('تحذير: الحذف نهائي ولا يمكن التراجع عنه. تُمحى بيانات هذا المستخدم وتقدّمه.', 'Warning: deletion is permanent and cannot be undone. This user\'s data and progress will be erased.')}</Notice>
-        <Field label={t('اكتب البريد بالضبط للتأكيد', 'Type the exact email to confirm')} hint={user.email}>
-          <input dir="ltr" className={fieldCls} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" data-testid="input-delete-email" />
+        <Field label={t('اكتب اسم المستخدم بالضبط للتأكيد', 'Type the exact username to confirm')} hint={`@${user.username}`}>
+          <input dir="ltr" className={fieldCls} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="off" data-testid="input-delete-username" />
         </Field>
         <Field label={t('السبب', 'Reason')}><textarea rows={2} maxLength={500} className={fieldCls} value={reason} onChange={(e) => setReason(e.target.value)} data-testid="input-delete-reason" /></Field>
         {err && <Notice kind="err">{err}</Notice>}
         <div className="flex justify-end gap-2">
           <Btn variant="outline" onClick={onClose}>{t('إلغاء', 'Cancel')}</Btn>
-          <Btn variant="danger" disabled={!ok || m.isPending} onClick={() => m.mutate({ id: user.id, data: { confirmationEmail: email.trim(), reason: reason.trim() } })} data-testid="button-delete-confirm">{m.isPending ? t('جارٍ الحذف…', 'Deleting…') : t('حذف نهائي', 'Delete permanently')}</Btn>
+          <Btn variant="danger" disabled={!ok || m.isPending} onClick={() => m.mutate({ id: user.id, data: { confirmationUsername: username.trim(), reason: reason.trim() } })} data-testid="button-delete-confirm">{m.isPending ? t('جارٍ الحذف…', 'Deleting…') : t('حذف نهائي', 'Delete permanently')}</Btn>
         </div>
       </div>
     </Modal>

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Modal, Platform, View } from "react-native";
-import { useAuth, useClerk, useUser } from "@clerk/expo";
+import { useAuth, useAuthActions, useUser } from "@/utils/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Action, Card, Txt, styles } from "./LearningUI";
@@ -10,7 +10,7 @@ import { disableNativeRenewalPush, cancelStudyNotifications } from "@/utils/rene
 export function SessionActions() {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const { signOut } = useClerk();
+  const { signOut } = useAuthActions();
   const qc = useQueryClient();
   const c = useColors();
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export function SessionActions() {
   </Card>;
   return <Card>
     <Txt style={styles.subheading}>حسابك</Txt>
-    <Txt>{user?.fullName || user?.primaryEmailAddress?.emailAddress || "تم تسجيل الدخول"}</Txt>
+    <Txt>{user?.fullName || `@${user?.username}` || "تم تسجيل الدخول"}</Txt>
     <Action title="تسجيل الخروج" secondary icon="log-out" onPress={() => { setError(""); setOpen(true); }} />
     <Modal visible={open} transparent animationType="fade" onRequestClose={() => { if (!busy) setOpen(false); }}>
       <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,.45)", justifyContent: "center", padding: 24 }}>

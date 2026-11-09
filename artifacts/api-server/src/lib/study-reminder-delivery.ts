@@ -13,7 +13,7 @@ export function isStudyDevice(subscription: unknown): boolean {
 }
 
 export async function studyStatus(userId: string, now = new Date()) {
-  const [learner] = await db.select().from(learners).where(eq(learners.identity, `clerk:${userId}`));
+  const [learner] = await db.select().from(learners).where(eq(learners.identity, `account:${userId}`));
   const status = studyReminderPolicy((learner?.preferences ?? {}) as StudyPreferences, now, userId);
   if (status.due && learner) {
     const [account] = await db.select().from(appAccounts).where(eq(appAccounts.userId, userId));

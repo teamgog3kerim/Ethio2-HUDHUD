@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "@clerk/react";
+import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useGetReminderDevice, saveReminderDevice } from "@workspace/api-client-react";
 import { disableRenewalPush, renewalBinding, saveRenewalBinding, webPushLimitation, workerBinding, withRenewalLock, retryWebRenewalRevocations, flushWebRenewalRevocations } from "@/lib/renewal-push";

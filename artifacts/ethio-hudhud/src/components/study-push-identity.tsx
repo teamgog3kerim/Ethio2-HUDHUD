@@ -1,4 +1,4 @@
-import { useAuth } from "@clerk/react";
+import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 import {
   studyPushBinding, disableStudyPush, retryStudyRevocations, setStudyPushIdentity, refreshStudyPush,

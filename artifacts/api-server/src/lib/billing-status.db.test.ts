@@ -12,10 +12,10 @@ test("48-hour trial persists, expired access is blocked, and signup cannot resta
   const guestId = randomUUID();
   const userId = `billing-test-${randomUUID()}`;
   const created = await db.insert(learners).values([
-    { identity: `guest:${guestId}` }, { identity: `clerk:${userId}` },
+    { identity: `guest:${guestId}` }, { identity: `account:${userId}` },
   ]).returning();
   const guest = created.find(l => l.identity.startsWith("guest:"))!;
-  const account = created.find(l => l.identity.startsWith("clerk:"))!;
+  const account = created.find(l => l.identity.startsWith("account:"))!;
   try {
     const initial = GetBillingStatusResponse.parse(await billingStatus(guest.id, null));
     assert.equal(initial.trial.state, "active");

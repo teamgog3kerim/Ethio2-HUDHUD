@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { clerkClient, getAuth } from "@clerk/express";
+import { getAuth } from "../lib/auth";
 import { rateLimit } from "express-rate-limit";
 import { CreateSandboxCheckoutBody, CreateSandboxCheckoutResponse, GetSandboxCheckoutResponse, CreateSandboxPortalResponse } from "@workspace/api-zod";
 import { createSandboxCheckout, refreshSandboxCheckout, sandboxPortal } from "../lib/polar-sandbox";
@@ -19,10 +19,7 @@ router.post("/billing/polar/sandbox/checkout", async (req, res) => {
   const userId = user(req);
   const body = CreateSandboxCheckoutBody.safeParse(req.body);
   if (!body.success) throw new HttpError(400, "خطة غير صالحة.");
-  const account = await clerkClient.users.getUser(userId);
-  const email = account.emailAddresses.find(e => e.id === account.primaryEmailAddressId && e.verification?.status === "verified")?.emailAddress;
-  if (!email) throw new HttpError(403, "أكّد بريدك الإلكتروني قبل المتابعة إلى الدفع التجريبي.");
-  res.json(CreateSandboxCheckoutResponse.parse(await createSandboxCheckout(userId, email, body.data.plan)));
+  res.json(CreateSandboxCheckoutResponse.parse(await createSandboxCheckout(userId, undefined, body.data.plan)));
 });
 router.get("/billing/polar/sandbox/checkout/:id", async (req, res) => {
   const userId = user(req);

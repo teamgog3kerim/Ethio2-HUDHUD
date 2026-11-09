@@ -69,7 +69,7 @@ export async function attachLiveCheckout(checkout: Pick<models.Checkout, "id" | 
   });
 }
 
-export async function createLiveCheckout(userId: string, email: string, plan: LivePlan, provider?: ReturnType<typeof liveApi>) {
+export async function createLiveCheckout(userId: string, email: string | undefined, plan: LivePlan, provider?: ReturnType<typeof liveApi>) {
   // These guards run before any SDK request or durable purchase is created.
   if (!liveCheckoutEnabled() || (plan === "monthly" && !liveMonthlyEnabled())) {
     throw new HttpError(503, plan === "monthly"
@@ -117,7 +117,8 @@ export async function createLiveCheckout(userId: string, email: string, plan: Li
   try {
     checkout = await api.checkouts.create({
       products: [LIVE_COURSE_PRODUCTS[plan]], external_customer_id: liveCustomerId(userId),
-      customer_email: email, allow_trial: false, allow_discount_codes: false, currency: "usd",
+      ...(email ? { customer_email: email } : {}),
+      allow_trial: false, allow_discount_codes: false, currency: "usd",
       metadata: { application: "hudhud", environment: "live", plan, hudhud_intent: intent.id,
         ...(plan === "monthly" ? { monthly_payment_number: intent.monthlyOrdinal! } : {}) },
       success_url: `${origin}/billing/return?environment=live&checkout_id={CHECKOUT_ID}`,

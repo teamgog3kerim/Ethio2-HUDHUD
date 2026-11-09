@@ -7,9 +7,8 @@ import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useFonts, IBMPlexSansArabic_400Regular, IBMPlexSansArabic_600SemiBold } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { NotoSansEthiopic_400Regular } from '@expo-google-fonts/noto-sans-ethiopic';
-import { ClerkProvider, ClerkLoaded, ClerkLoading, useAuth } from '@clerk/expo';
-import { tokenCache } from '@clerk/expo/token-cache';
 import { setBaseUrl, setAuthTokenGetter } from '@workspace/api-client-react';
+import { AuthProvider, getStoredAuthToken, useAuth } from '@/utils/auth';
 import { useColors } from '@/hooks/useColors';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -20,6 +19,7 @@ import { setNativeRenewalIdentity } from '@/utils/renewal-push';
 SplashScreen.preventAutoHideAsync();
 
 if (process.env.EXPO_PUBLIC_DOMAIN) setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
+setAuthTokenGetter(getStoredAuthToken);
 function Startup() {
   return <View style={{ flex: 1, backgroundColor: '#f6f7f3', alignItems: 'center', justifyContent: 'center', gap: 18 }}>
     <ActivityIndicator size="large" color="#166a55" />
@@ -28,10 +28,9 @@ function Startup() {
 }
 
 function AuthBridge() {
-  const { getToken, userId } = useAuth();
+  const { userId } = useAuth();
   setNativeRenewalIdentity(userId);
   const queryClient = useMemo(() => new QueryClient(), [userId]);
-  setAuthTokenGetter(() => getToken());
   return <QueryClientProvider client={queryClient}><NativeRenewalBoundary /><RootLayoutNav /></QueryClientProvider>;
 }
 
@@ -68,10 +67,7 @@ export default function RootLayout() {
       <ErrorBoundary>
           <GestureHandlerRootView>
             <KeyboardProvider>
-              <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache} proxyUrl={process.env.EXPO_PUBLIC_CLERK_PROXY_URL || undefined}>
-                <ClerkLoading><Startup /></ClerkLoading>
-                <ClerkLoaded><AuthBridge /></ClerkLoaded>
-              </ClerkProvider>
+              <AuthProvider><AuthBridge /></AuthProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
       </ErrorBoundary>

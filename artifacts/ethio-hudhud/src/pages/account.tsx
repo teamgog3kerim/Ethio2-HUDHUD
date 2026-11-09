@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useAuth, useClerk, useUser } from '@clerk/react';
+import { useAuth, useAuthActions, useUser, changePassword } from '@/lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Trash2 } from 'lucide-react';
 import {
@@ -27,11 +27,15 @@ export default function Account() {
   const { toast } = useToast();
   const [, nav] = useLocation();
   const { isSignedIn } = useAuth();
-  const { signOut } = useClerk();
+  const { signOut } = useAuthActions();
   const { user } = useUser();
   const q = useGetProfile();
   const [f, setF] = useState<ProfileInput | null>(null);
   const [confirm, setConfirm] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
   useEffect(() => { if (q.data && !f) setF(toInput(q.data)); }, [q.data, f]);
   const set = (p: Partial<ProfileInput>) => setF((x) => (x ? { ...x, ...p } : x));
 
@@ -63,10 +67,10 @@ export default function Account() {
       {isSignedIn && (
         <Card className="mb-5 flex flex-wrap items-center justify-between gap-4" data-testid="card-identity">
           <div className="flex min-w-0 items-center gap-3">
-            {user?.imageUrl ? <img src={user.imageUrl} alt="" className="size-12 rounded-full" /> : <span className="grid size-12 place-items-center rounded-full bg-gold font-bold text-gold-foreground">{(user?.firstName?.[0] ?? '?').toUpperCase()}</span>}
+            <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gold font-bold text-gold-foreground">{(user?.fullName?.[0] ?? '?').toUpperCase()}</span>
             <div className="min-w-0">
               <p className="truncate font-semibold">{user?.fullName || user?.username || t('حسابي', 'My account')}</p>
-              <p dir="ltr" className="truncate text-start text-sm text-muted-foreground">{user?.primaryEmailAddress?.emailAddress ?? ''}</p>
+              <p dir="ltr" className="truncate text-start text-sm text-muted-foreground">@{user?.username}</p>
             </div>
           </div>
           <SignOutAction testId="button-signout-account" className="press inline-flex h-11 items-center gap-2 rounded-2xl border border-input bg-card px-5 text-sm font-semibold" />
@@ -109,9 +113,33 @@ export default function Account() {
 
           <StudyScheduleSettings />
 
+          {isSignedIn && (
+            <Card>
+              <h2 className="font-display mb-3 font-bold">{t('تغيير كلمة المرور', 'Change password')}</h2>
+              <form className="grid gap-3 sm:grid-cols-2" onSubmit={async event => {
+                event.preventDefault(); setPasswordMessage(''); setPasswordBusy(true);
+                try {
+                  await changePassword(currentPassword, newPassword);
+                  setCurrentPassword(''); setNewPassword('');
+                  setPasswordMessage(t('تم تغيير كلمة المرور وتحديث جلسات الدخول.', 'Password changed and sessions refreshed.'));
+                } catch (error) {
+                  setPasswordMessage(error instanceof Error ? error.message : t('تعذّر تغيير كلمة المرور.', 'Could not change password.'));
+                } finally { setPasswordBusy(false); }
+              }}>
+                <label className="block text-sm font-semibold">{t('كلمة المرور الحالية', 'Current password')}<input type="password" autoComplete="current-password" className={cn(input, 'mt-1.5')} value={currentPassword} required maxLength={128} onChange={event => setCurrentPassword(event.target.value)} /></label>
+                <label className="block text-sm font-semibold">{t('كلمة المرور الجديدة', 'New password')}<input type="password" autoComplete="new-password" className={cn(input, 'mt-1.5')} value={newPassword} required minLength={10} maxLength={128} onChange={event => setNewPassword(event.target.value)} /></label>
+                <div className="sm:col-span-2">
+                  <Btn type="submit" disabled={passwordBusy || newPassword.length < 10}>{passwordBusy ? t('جارٍ التحديث…', 'Updating…') : t('حفظ كلمة المرور', 'Save password')}</Btn>
+                  {passwordMessage && <p role="status" className="mt-2 text-sm">{passwordMessage}</p>}
+                </div>
+              </form>
+              <p className="mt-2 text-xs text-muted-foreground">{t('لا يوجد استرداد ذاتي لكلمة المرور دون بريد إلكتروني. احفظ بيانات الدخول في مكان آمن.', 'Without email, there is no self-service password recovery. Keep your sign-in details somewhere safe.')}</p>
+            </Card>
+          )}
+
           <Card className="border-destructive/40">
             <h2 className="font-display mb-1 font-bold text-destructive">{t('حذف بيانات التعلّم', 'Delete learning data')}</h2>
-            <p className="mb-3 text-sm text-muted-foreground">{t('يحذف التقدّم والمحادثات والتفضيلات. حساب تسجيل الدخول لدى Clerk يبقى منفصلاً ولا يُحذف بهذا الإجراء.', 'Deletes progress, chat and preferences. Your separate Clerk sign-in identity is not deleted by this action.')}</p>
+            <p className="mb-3 text-sm text-muted-foreground">{t('يحذف التقدّم والمحادثات والتفضيلات فقط. يبقى حساب تسجيل الدخول محفوظًا.', 'Deletes learning progress, chats, and preferences only. Your sign-in account remains active.')}</p>
             <p className="mb-3 text-sm text-muted-foreground">{t(`لا يمكن التراجع. اكتب "${word}" للتأكيد.`, `This cannot be undone. Type "${word}" to confirm.`)}</p>
             <div className="flex flex-wrap gap-2">
               <input className={cn(input, 'max-w-48')} value={confirm} onChange={(e) => setConfirm(e.target.value)} data-testid="input-confirm-delete" />

@@ -5,7 +5,7 @@ import './startup-welcome.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const SKIP_PATH = /^\/(sign-in|sign-up|start|billing|choose-plan|sso-callback|oauth)(\/|$)/;
-const SKIP_PARAM = /(^|[?&#])(__clerk[\w]*|code|state|session_id|checkout_id|customer_session_token|checkout|oauth_callback|error)=/i;
+const SKIP_PARAM = /(^|[?&#])(code|state|session_id|checkout_id|customer_session_token|checkout|oauth_callback|error)=/i;
 
 function shouldSkip(): boolean {
   const { pathname, search, hash } = window.location;

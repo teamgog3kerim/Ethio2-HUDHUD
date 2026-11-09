@@ -12,8 +12,7 @@ import type { AdminUserSelectedPlan } from './adminUserSelectedPlan';
 
 export interface AdminUser {
   id: string;
-  email: string;
-  emailVerified: boolean;
+  username: string;
   displayName: string;
   role: AdminUserRole;
   suspended: boolean;

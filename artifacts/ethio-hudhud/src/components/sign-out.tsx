@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'wouter';
-import { useClerk } from '@clerk/react';
+import { useAuthActions } from '@/lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, LogOut } from 'lucide-react';
 import {
@@ -14,7 +14,7 @@ import { disableStudyPush, setStudyPushIdentity } from '@/lib/study-push';
 
 export function SignOutAction({ className, children, testId = 'button-signout' }: { className?: string; children?: ReactNode; testId?: string }) {
   const { t } = useApp();
-  const { signOut } = useClerk();
+  const { signOut } = useAuthActions();
   const qc = useQueryClient();
   const [, nav] = useLocation();
   const [open, setOpen] = useState(false);

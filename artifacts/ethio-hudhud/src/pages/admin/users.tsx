@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, Users } from 'lucide-react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useGetAdminAccess, useGetAdminUsers, type AdminUser } from '@workspace/api-client-react';
 import { Btn, Card, Empty, ErrorState, Skeleton } from '@/components/bits';
 import { AdminLayout } from '@/components/admin/layout';
@@ -72,7 +72,7 @@ function Body() {
   return (
     <div className="space-y-4">
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setPage(1); setSearch(input.trim()); }}>
-        <input className={fieldCls} value={input} maxLength={100} onChange={(e) => setInput(e.target.value)} placeholder={t('ابحث بالاسم أو البريد', 'Search by name or email')} data-testid="input-user-search" />
+        <input className={fieldCls} value={input} maxLength={100} onChange={(e) => setInput(e.target.value)} placeholder={t('ابحث بالاسم أو اسم المستخدم', 'Search by name or username')} data-testid="input-user-search" />
         <Btn type="submit" data-testid="button-user-search"><Search className="size-4" />{t('بحث', 'Search')}</Btn>
       </form>
       {done && <Notice kind="ok">{done}</Notice>}
@@ -90,7 +90,7 @@ function Body() {
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate font-bold">{u.displayName}{self && <span className="ms-2 text-xs font-normal text-muted-foreground">({t('أنت', 'you')})</span>}</p>
-                        <p className="truncate text-sm text-muted-foreground" dir="ltr">{u.email}{!u.emailVerified && ` · ${t('غير موثّق', 'unverified')}`}</p>
+                        <p className="truncate text-sm text-muted-foreground" dir="ltr">@{u.username}</p>
                       </div>
                       <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
                         <span className="rounded-full bg-secondary px-2.5 py-1">{roleLabel(u.role)}</span>

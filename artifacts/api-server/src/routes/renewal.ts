@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
+import { getAuth } from "../lib/auth";
 import { db, renewalDevices } from "@workspace/db";
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";

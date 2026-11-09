@@ -1,4 +1,4 @@
-/* Network-only PWA worker. Never cache API replies, Clerk sessions or learner data. */
+/* Network-only PWA worker. Never cache API replies, sign-in sessions or learner data. */
 self.addEventListener('install', () => { self.skipWaiting(); });
 self.addEventListener('activate', event => { event.waitUntil(self.clients.claim()); });
 // Only an opaque installation binding and period hashes are persisted here.

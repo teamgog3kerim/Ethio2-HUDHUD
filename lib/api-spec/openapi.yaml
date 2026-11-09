@@ -14,6 +14,67 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/HealthStatus" }
+  /auth/session:
+    get:
+      operationId: getAuthSession
+      responses:
+        "200":
+          description: Current username/password session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/register:
+    post:
+      operationId: registerAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccountRegistration" }
+      responses:
+        "201":
+          description: Account created and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "400": { description: Invalid registration details }
+        "409": { description: Username already exists }
+  /auth/login:
+    post:
+      operationId: loginAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccountLogin" }
+      responses:
+        "200":
+          description: Signed-in account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401": { description: Invalid username or password }
+  /auth/logout:
+    post:
+      operationId: logoutAccount
+      responses:
+        "200":
+          description: Session ended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+  /auth/password:
+    post:
+      operationId: changeAccountPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordChange" }
+      responses:
+        "200": { description: Password changed and session rotated }
+        "400": { description: Current password incorrect or new password invalid }
+        "401": { description: Sign-in required }
   /profile:
     get:
       operationId: getProfile
@@ -292,7 +353,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/PolarCheckout" }
         "401": { description: Sign in required }
-        "403": { description: Verified email and active account required }
+        "403": { description: Active account required }
         "409": { description: Existing or unresolved purchase }
         "503": { description: Checkout not enabled or monthly cap not approved }
   /billing/polar/live/checkout/{id}:
@@ -746,11 +807,10 @@ components:
         learningProfiles: { $ref: "#/components/schemas/AdminLearningProfiles" }
     AdminUser:
       type: object
-      required: [id, email, emailVerified, displayName, role, suspended, createdAt, lastSignInAt, lessonsCompleted, xp, dailyGoal, accessPlan, accessExpiresAt, accessReason]
+      required: [id, username, displayName, role, suspended, createdAt, lastSignInAt, lessonsCompleted, xp, dailyGoal, accessPlan, accessExpiresAt, accessReason]
       properties:
         id: { type: string }
-        email: { type: string }
-        emailVerified: { type: boolean }
+        username: { type: string }
         displayName: { type: string }
         role: { type: string, enum: [owner, admin, learner] }
         suspended: { type: boolean }
@@ -805,10 +865,45 @@ components:
         reason: { type: string, minLength: 3, maxLength: 500 }
     AdminUserDelete:
       type: object
-      required: [confirmationEmail, reason]
+      required: [confirmationUsername, reason]
       properties:
-        confirmationEmail: { type: string }
+        confirmationUsername: { type: string }
         reason: { type: string, minLength: 3, maxLength: 500 }
+    AuthUser:
+      type: object
+      required: [id, fullName, username, createdAt, lastSignInAt]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        username: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastSignInAt: { type: [string, "null"], format: date-time }
+    AuthSession:
+      type: object
+      required: [isSignedIn, user]
+      properties:
+        isSignedIn: { type: boolean }
+        user: { oneOf: [{ $ref: "#/components/schemas/AuthUser" }, { type: "null" }] }
+        accessToken: { type: string, description: Present only for secure native-client sessions. }
+    AccountRegistration:
+      type: object
+      required: [fullName, username, password]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 80 }
+        username: { type: string, pattern: "^[A-Za-z0-9_]{3,24}$" }
+        password: { type: string, minLength: 10, maxLength: 128 }
+    AccountLogin:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 3, maxLength: 24 }
+        password: { type: string, minLength: 1, maxLength: 128 }
+    PasswordChange:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, minLength: 1, maxLength: 128 }
+        newPassword: { type: string, minLength: 10, maxLength: 128 }
     AdminAccessGrant:
       type: object
       required: [enabled, expiresAt, reason]

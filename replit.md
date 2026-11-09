@@ -37,7 +37,8 @@ An Arabic-first Amharic learning pilot for web, iOS and Android.
 ## Architecture decisions
 
 - Preserve the scaffold's Drizzle ORM instead of introducing Prisma alongside it.
-- Native sessions use Clerk SecureStore/bearer tokens; browser sessions use cookies.
+- App accounts use full name, username, and password; no email or Clerk sign-in.
+- Native sessions use opaque bearer tokens in secure device storage; browsers use HttpOnly cookies.
 - Local reminders are device schedules; web preferences do not imply notification delivery.
 
 ## Product
@@ -57,14 +58,15 @@ or claiming reviewer approval, voice capabilities or paid access.
 - Keep API keys and signing secrets server-only.
 - The development schema used push; do not replay fresh SQL migrations without baselining.
 - SQL migrations do not run at API startup; the startup seed is DML only.
-- Polar billing, reviewed full curriculum and community/tutor-booking are not yet implemented.
+- Course content is pilot material and needs qualified review; community and tutor booking are not implemented.
 - Responsive web administration lives at `/admin`. App permissions are stored and checked
   server-side, separately from learner data. Only the owner assigns administrator roles.
-- Owner bootstrap requires verified email ownership in the current Clerk tenant. It runs
-  at startup and on authenticated admin-access checks; tenant-scoped initialization
-  markers prevent both development IDs suppressing production setup and privilege regrant.
-- Apply new database schema through the normal publication migration flow before
-  running this version in production. The API does not auto-run schema DDL.
+- Owner bootstrap uses the server-side `ADMIN_BOOTSTRAP_USERNAME` and
+  `ADMIN_BOOTSTRAP_PASSWORD` values; it grants ownership once per configured
+  username and does not restore a revoked role on every restart.
+- Apply new database schema through the appropriate host flow before production:
+  EthioDeploy uses checked-in Drizzle migrations; Replit-managed production uses
+  its Publish schema flow. The API does not auto-run schema DDL.
 
 ## Pointers
 

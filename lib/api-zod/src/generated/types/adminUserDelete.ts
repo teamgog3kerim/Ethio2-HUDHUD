@@ -6,7 +6,7 @@
  */
 
 export interface AdminUserDelete {
-  confirmationEmail: string;
+  confirmationUsername: string;
   /**
      * @minLength 3
      * @maxLength 500

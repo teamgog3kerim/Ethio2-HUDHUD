@@ -22,7 +22,7 @@ test("real completion credit stays with the submitting account while its respons
   const owners = [accountA, accountB, null] as const;
   const isolated = new Map<string | null, typeof learners.$inferSelect>();
   for (const owner of owners) {
-    const identity = owner ? `clerk:${owner}` : `guest:${guest}`;
+    const identity = owner ? `account:${owner}` : `guest:${guest}`;
     const [learner] = await db.insert(learners).values({ identity, preferences: defaultPreferences }).returning();
     assert.ok(learner);
     isolated.set(owner, learner);
@@ -39,10 +39,7 @@ test("real completion credit stays with the submitting account while its respons
     // Capture transport identity per request, never read the later session in
     // the completion handler. No credentials, auth bypass or test route ship.
     const requestOwner = activeOwner;
-    Object.assign(req, {
-      auth: Object.assign(() => ({ userId: requestOwner, tokenType: "session_token" }), { [Symbol.for("@clerk/express.auth")]: true }),
-      signedCookies: { hudhud_guest: guest },
-    });
+    Object.assign(req, { hudhudAuth: { userId: requestOwner }, signedCookies: { hudhud_guest: guest } });
     if (req.method === "POST" && req.path.endsWith("/complete")) {
       const send = res.json.bind(res);
       const gate = new Promise<void>(resolve => { release = resolve; });
@@ -133,10 +130,7 @@ test("real completion routes: browsing, failure, retry, reload and one-time cred
   app.use((req, _res, next) => {
     // Same trusted identity boundary used by the existing integration harness;
     // this middleware exists only in this test, never the application.
-    Object.assign(req, {
-      auth: Object.assign(() => ({ userId: null, tokenType: "session_token" }), { [Symbol.for("@clerk/express.auth")]: true }),
-      signedCookies: { hudhud_guest: guest },
-    });
+    Object.assign(req, { hudhudAuth: { userId: null }, signedCookies: { hudhud_guest: guest } });
     next();
   });
   app.use(learningRouter);
@@ -314,10 +308,7 @@ test("real completion routes: concurrent different lessons both retain credit an
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => {
-    Object.assign(req, {
-      auth: Object.assign(() => ({ userId: null, tokenType: "session_token" }), { [Symbol.for("@clerk/express.auth")]: true }),
-      signedCookies: { hudhud_guest: guest },
-    });
+    Object.assign(req, { hudhudAuth: { userId: null }, signedCookies: { hudhud_guest: guest } });
     next();
   });
   app.use(learningRouter);

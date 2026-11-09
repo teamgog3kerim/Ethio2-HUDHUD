@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useBilling } from './billing-notice';
 import { Shell } from './shell';
 import { ErrorState, Skeleton } from './bits';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useApp } from '@/lib/app';
 
 export function CourseAccessGate({ children }: { children: ReactNode }) {
@@ -40,7 +40,7 @@ export function CourseAccessGate({ children }: { children: ReactNode }) {
   if (!isSignedIn) return <Redirect to="/sign-up?plan=trial" replace />;
   if (billing.isLoading) return <Shell><Skeleton className="h-64" /></Shell>;
   if (billing.isError || !b) return <Shell><ErrorState what={t('التحقق من صلاحية التعلّم', 'checking learning access')} onRetry={() => void billing.refetch()} /></Shell>;
-  // Clerk may have activated before its session cookie reaches the API. Never
+  // A browser session may activate before its cookie reaches the API. Never
   // bounce a signed-in learner through signup repeatedly or show guest content.
   if (b.isGuest) return <Shell><ErrorState what={t('تأكيد جلسة حسابك، أعد المحاولة للمتابعة', 'confirming your account session; retry to continue')} onRetry={() => void billing.refetch()} /></Shell>;
   if (!b.enforcementEnabled || b.fullCourseAccess) return children;

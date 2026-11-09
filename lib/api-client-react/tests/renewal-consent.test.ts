@@ -19,7 +19,7 @@ for (const platform of ["web", "native"] as const) {
       let signedOut = false;
       await queueRenewalRevocation(store);
       await finishRenewalRevocation(store, async () => { requests++; throw new Error("API unavailable"); }, { bestEffort: true });
-      signedOut = true; // Clerk sign-out remains reachable after local withdrawal.
+      signedOut = true; // Sign-out remains reachable after local withdrawal.
       assert.equal(signedOut, true);
       assert.equal((await store.read()).consent, false);
       assert.equal(requests, enrolled ? 1 : 0);

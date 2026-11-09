@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getGetProfileQueryKey, getGetStudyReminderStatusQueryKey, getGetStudyReminderDeviceQueryKey,

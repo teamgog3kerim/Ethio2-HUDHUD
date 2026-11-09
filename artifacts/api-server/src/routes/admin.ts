@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { liveCheckoutEnabled } from "../lib/polar-live";
-import { clerkClient, getAuth } from "@clerk/express";
-import { db, applicationSettings, adminAudit, appAccounts, accessGrants, completions, aiUsage, learners } from "@workspace/db";
+import { getAuth } from "../lib/auth";
+import { db, authUsers, applicationSettings, adminAudit, appAccounts, accessGrants, completions, aiUsage, learners } from "@workspace/db";
 import { count, and, eq, gt, desc, like, isNull } from "drizzle-orm";
 import { GetAdminAccessResponse, GetAdminOverviewResponse, SaveAdminSettingsBody, GetAdminSettingsResponse, GetAdminAuditResponse } from "@workspace/api-zod";
 import { z } from "zod/v4";
@@ -19,14 +19,14 @@ router.get("/me", async (req, res) => {
 router.use(requireAdmin);
 router.get("/overview", async (_req, res) => {
   const [directory, learnerCount, completionCount, usageCount, complimentaryCount, suspendedCount] = await Promise.all([
-    clerkClient.users.getUserList({ limit: 1 }),
-    db.select({ n: count() }).from(learners).where(like(learners.identity, "clerk:%")),
+    db.select({ n: count() }).from(authUsers),
+    db.select({ n: count() }).from(learners).where(like(learners.identity, "account:%")),
     db.select({ n: count() }).from(completions),
     db.select({ n: count() }).from(aiUsage),
     db.select({ n: count() }).from(accessGrants).where(and(eq(accessGrants.enabled, true), gt(accessGrants.expiresAt, new Date()))),
     db.select({ n: count() }).from(appAccounts).where(and(eq(appAccounts.suspended, true), isNull(appAccounts.deletedAt))),
   ]);
-  res.json(GetAdminOverviewResponse.parse({ registeredUsers: directory.totalCount, learners: learnerCount[0]!.n, completedLessons: completionCount[0]!.n, aiRequests: usageCount[0]!.n, activeComplimentary: complimentaryCount[0]!.n, suspendedUsers: suspendedCount[0]!.n, billingConfigured: liveCheckoutEnabled() }));
+  res.json(GetAdminOverviewResponse.parse({ registeredUsers: directory[0]!.n, learners: learnerCount[0]!.n, completedLessons: completionCount[0]!.n, aiRequests: usageCount[0]!.n, activeComplimentary: complimentaryCount[0]!.n, suspendedUsers: suspendedCount[0]!.n, billingConfigured: liveCheckoutEnabled() }));
 });
 router.get("/settings", async (_req, res) => { res.json(await getAppSettings()); });
 router.put("/settings", async (req, res) => {

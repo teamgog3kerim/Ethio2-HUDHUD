@@ -1,5 +1,5 @@
 import { Check, Sparkles } from 'lucide-react';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { Btn, Card, ErrorState, LinkBtn, Skeleton } from '@/components/bits';
 import { useBilling } from '@/components/billing-notice';
 import { useApp } from '@/lib/app';

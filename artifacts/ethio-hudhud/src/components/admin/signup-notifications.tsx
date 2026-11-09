@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/react";
+import { useAuth } from "@/lib/auth";
 import { Link } from "wouter";
 import { Bell, Users, X } from "lucide-react";
 import { getGetAdminOverviewQueryKey, useGetAdminOverview } from "@workspace/api-client-react";

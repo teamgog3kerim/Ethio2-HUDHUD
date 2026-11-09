@@ -8,7 +8,7 @@ import Dashboard from '@/pages/dashboard';
 import Premium from '@/pages/premium';
 import ChoosePlan from '@/pages/choose-plan';
 import Account from '@/pages/account';
-import { ClerkQueryClientCacheInvalidator } from '@/components/clerk-query-cache-invalidator';
+import { AuthQueryCacheInvalidator } from '@/components/auth-query-cache-invalidator';
 import './styles.css';
 
 const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -22,7 +22,7 @@ client.invalidateQueries = (...args) => {
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={client}>
     <AppProvider>
-      <ClerkQueryClientCacheInvalidator />
+      <AuthQueryCacheInvalidator />
       <Switch>
         <Route path="/account" component={Account} />
         <Route path="/premium" component={Premium} />

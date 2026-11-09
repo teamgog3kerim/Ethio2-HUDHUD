@@ -57,7 +57,7 @@ import
 {
  getAuth 
 }
- from "@clerk/express"
+ from "../lib/auth"
 ;
 
 import 
@@ -852,7 +852,7 @@ router.delete("/account", async (req, res) =>
 
   res.json(
 {
- status: "Learning data deleted. Clerk identity, if any, remains managed separately." 
+ status: "Learning data deleted. Your username and sign-in account remain active."
 }
 )
 ;

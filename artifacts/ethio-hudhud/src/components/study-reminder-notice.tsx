@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { useAuth } from '@clerk/react';
+import { useAuth } from '@/lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { BellRing } from 'lucide-react';
 import {

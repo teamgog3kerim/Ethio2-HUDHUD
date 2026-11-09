@@ -46,9 +46,9 @@ router.get("/visitors", async (req, res): Promise<void> => {
       .from(visitorPageviews).where(gte(visitorPageviews.createdAt, since))
       .groupBy(visitorPageviews.language).orderBy(sql`count(distinct ${visitorPageviews.visitorId}) desc`),
     db.select({ category: level, visitors: count() }).from(learners)
-      .where(like(learners.identity, "clerk:%")).groupBy(level).orderBy(sql`count(*) desc`),
+      .where(like(learners.identity, "account:%")).groupBy(level).orderBy(sql`count(*) desc`),
     db.select({ category: profileLanguage, visitors: count() }).from(learners)
-      .where(like(learners.identity, "clerk:%")).groupBy(profileLanguage).orderBy(sql`count(*) desc`),
+      .where(like(learners.identity, "account:%")).groupBy(profileLanguage).orderBy(sql`count(*) desc`),
   ]);
 
   const learningProfiles = {

@@ -11,7 +11,7 @@ import { liveCheckoutEnabled, liveMonthlyEnabled } from "./polar-live";
 test("live entitlement isolation, freshness, grants and original trial are preserved", async () => {
   const userId = `isolated-live-access-${randomUUID()}`;
   const other = `isolated-live-other-${randomUUID()}`;
-  const [learner] = await db.insert(learners).values({ identity: `clerk:${userId}` }).returning();
+  const [learner] = await db.insert(learners).values({ identity: `account:${userId}` }).returning();
   const checkoutId = randomUUID();
   const until = new Date(Date.now() + 25 * 86_400_000);
   try {

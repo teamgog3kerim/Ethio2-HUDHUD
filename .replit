@@ -47,6 +47,8 @@ timeoutMs = 20000
 
 [userenv.shared]
 ADMIN_BOOTSTRAP_EMAIL = "teamgog3@gmail.com"
+ADMIN_BOOTSTRAP_FULL_NAME = "Abdulkerim"
+ADMIN_BOOTSTRAP_USERNAME = "teamgog3"
 
 [userenv.development]
 POLAR_SANDBOX_APP_URL = "https://3e612faa-2e4d-4ee4-b145-759195952e72-00-2plfn9im0vkeb.reed.replit.dev"

@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "packageManager": "pnpm@10.26.1",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "test:billing": "pnpm --filter @workspace/ethio-hudhud run test:billing",
     "test:favourites": "pnpm --filter @workspace/ethio-hudhud run test:favourites",

@@ -7,7 +7,8 @@ An Arabic-first Amharic learning pilot for web, iOS and Android.
 - Use the existing managed API, web and Expo workflows; they supply PORT and routing.
 - `pnpm --filter @workspace/api-server run dev` — run the shared API service
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
+- `pnpm run build` — production web + API build for EthioDeploy
+- `pnpm run build:workspace` — typecheck + build all packages, including promo artifacts
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string

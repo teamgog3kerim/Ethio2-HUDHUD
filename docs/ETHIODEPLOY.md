@@ -14,16 +14,17 @@ EthioDeploy secrets, database migrations, DNS, or payment-provider settings.
 ## 2. Configure the service
 
 - Install: `pnpm install --frozen-lockfile`
-- Build: `pnpm run build:ethiodeploy`
-- Start: `pnpm run start:ethiodeploy` (runs the checked-in database migrations before starting)
+- Build: `pnpm run build`
+- Start: `pnpm start` (runs the checked-in database migrations before starting)
 - Health check: `/api/healthz`
 - Runtime: Node.js service listening on EthioDeploy's `PORT`
 - Keep an always-on instance; it runs scheduled reminder and billing workers.
 
-The checked-in `nixpacks.toml` selects the EthioDeploy build and start commands.
-No Clerk or Vite authentication keys are needed at build time.
+The root `build` and `start` scripts select the web/API production service; promo
+artifacts are not part of this deployment. `nixpacks.toml` mirrors those commands.
+No Clerk or Vite authentication keys are needed.
 
-## 3. Add encrypted runtime variables
+## 3. Add encrypted environment variables
 
 Set these in EthioDeploy's encrypted environment/secrets settings. Never put
 secret values in GitHub, source files, or chat.

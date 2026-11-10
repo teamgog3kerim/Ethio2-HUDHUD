@@ -1,6 +1,7 @@
 {
   "name": "workspace",
   "version": "0.0.0",
+  "packageManager": "pnpm@10.26.1",
   "license": "MIT",
   "scripts": {
     "test:billing": "pnpm --filter @workspace/ethio-hudhud run test:billing",

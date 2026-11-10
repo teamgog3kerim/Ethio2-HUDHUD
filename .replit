@@ -46,7 +46,6 @@ timeoutMs = 20000
 [userenv]
 
 [userenv.shared]
-ADMIN_BOOTSTRAP_EMAIL = "teamgog3@gmail.com"
 ADMIN_BOOTSTRAP_FULL_NAME = "Abdulkerim"
 ADMIN_BOOTSTRAP_USERNAME = "teamgog3"
 

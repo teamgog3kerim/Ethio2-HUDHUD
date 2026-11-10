@@ -14,7 +14,7 @@ An Arabic-first Amharic learning pilot for web, iOS and Android.
 - `pnpm --filter @workspace/db run seed` — idempotent pilot curriculum seed
 - `pnpm --filter @workspace/api-server test` — grading, review interval, timer and admin policy tests
 - `pnpm run test:learning-path` — curriculum/path tests, desktop + Arabic mobile browser regressions, and isolated completion API persistence test (development/test DB required; see `docs/LEARNING_PATH_TESTS.md`)
-- `pnpm --filter @workspace/api-server run bootstrap-owner` — idempotent verified owner setup using `ADMIN_BOOTSTRAP_EMAIL`
+- `pnpm --filter @workspace/api-server run bootstrap-owner` — idempotent owner setup using `ADMIN_BOOTSTRAP_USERNAME` and `ADMIN_BOOTSTRAP_PASSWORD`
 
 ## Stack
 

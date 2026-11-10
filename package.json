@@ -8,7 +8,7 @@
     "test:learning-path": "pnpm --filter @workspace/api-server test && pnpm --filter @workspace/api-server exec tsx --test ../../lib/api-client-react/tests/learning-path.test.ts && pnpm --filter @workspace/ethio-hudhud run test:learning-path && pnpm run test:learning-path:api",
     "test:learning-path:api": "RUN_LEARNING_INTEGRATION=1 pnpm --filter @workspace/api-server exec tsx --test src/lib/learning-completion.integration.test.ts",
     "build:ethiodeploy": "sh scripts/build-ethiodeploy.sh",
-    "start:ethiodeploy": "node scripts/check-ethiodeploy-env.mjs && NODE_ENV=production SERVE_WEB=true node --enable-source-maps artifacts/api-server/dist/index.mjs",
+    "start:ethiodeploy": "node scripts/check-ethiodeploy-env.mjs && pnpm --filter @workspace/db run migrate && NODE_ENV=production SERVE_WEB=true node --enable-source-maps artifacts/api-server/dist/index.mjs",
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",

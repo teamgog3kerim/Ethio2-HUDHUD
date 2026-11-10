@@ -15,11 +15,12 @@ EthioDeploy secrets, database migrations, DNS, or payment-provider settings.
 
 - Install: `pnpm install --frozen-lockfile`
 - Build: `pnpm run build:ethiodeploy`
-- Start: `pnpm run start:ethiodeploy`
+- Start: `pnpm run start:ethiodeploy` (runs the checked-in database migrations before starting)
 - Health check: `/api/healthz`
 - Runtime: Node.js service listening on EthioDeploy's `PORT`
 - Keep an always-on instance; it runs scheduled reminder and billing workers.
 
+The checked-in `nixpacks.toml` selects the EthioDeploy build and start commands.
 No Clerk or Vite authentication keys are needed at build time.
 
 ## 3. Add encrypted runtime variables
@@ -53,14 +54,9 @@ Polar's hosted checkout; those are separate from app account credentials.
 
 ## 4. Prepare the database
 
-Create the PostgreSQL database, set `DATABASE_URL`, then apply the checked-in
-Drizzle migrations before starting the service:
-
-```sh
-pnpm --filter @workspace/db run migrate
-```
-
-Do not point a new empty database at the public domain until migrations,
+Create the PostgreSQL database first. The start command applies the checked-in
+Drizzle migrations before the API seeds the curriculum and starts its workers.
+Do not point a new empty database at the public domain until migration,
 curriculum seeding, and verification have succeeded. Existing Replit accounts
 use a different identity system and are not automatically converted to
 username/password accounts. Their old learner, billing, and progress records

@@ -17,3 +17,4 @@
 - [Unpaid checkout switching](unpaid-checkout-switching.md) — resume the original session; switching waits for provider-confirmed retirement, never a local expiry.
 - [GitHub repository pushes](github-repository-pushes.md) — HTTPS pushes may route through Replit’s Git mirror; verify the target refs and pushed commit.
 - [Username/password accounts](username-password-auth.md) — App sign-in uses full name, username, and password only; no email or Clerk.
+- [EthioDeploy controls](ethiodeploy-controls.md) — verify CLI support for runtime-only secrets; database exposure and custom-domain routing may require dashboard access.

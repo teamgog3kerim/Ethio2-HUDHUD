@@ -61,6 +61,12 @@ export const test = base.extend<{ billing: ReturnType<typeof createState> }>({
         user: id ? { id, fullName: 'Test learner', username: id, createdAt: '2026-01-01T00:00:00.000Z', lastSignInAt: null } : null,
       });
       if (/^\/api\/billing\/reminder-device\/[0-9a-f-]{36}$/.test(url.pathname)) return json(reminderDevice);
+      if (url.pathname === '/api/study-reminders') return json({
+        enabled: false, time: '19:00', timezone: 'Africa/Addis_Ababa', scheduled: false,
+        paused: false, due: false, occurrenceKey: null, nextDate: null,
+        snoozedUntil: null, actionHref: '/learn',
+      });
+      if (/^\/api\/study-reminders\/devices\/[0-9a-f-]{36}$/.test(url.pathname)) return json(reminderDevice);
       if (url.pathname === '/api/billing/status') {
         billing.reads.push(id);
         const snapshot = structuredClone(record);

@@ -23,13 +23,15 @@ function ScheduleForm({ profile }: { profile: Profile }) {
   const schedule = profile.studySchedule;
   const [startDate, setStartDate] = useState(schedule?.startDate ?? '');
   const [studyDays, setStudyDays] = useState(schedule?.studyDays ?? [0, 1, 2, 3, 4, 5, 6]);
-  const [timezone, setTimezone] = useState(profile.timezone);
+  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const fallbackTimezone = browserTimezone || 'UTC';
+  const [timezone, setTimezone] = useState(profile.timezone || fallbackTimezone);
   const timezones = Array.from(new Set([
     profile.timezone,
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    browserTimezone,
     'Africa/Addis_Ababa', 'Asia/Riyadh', 'Asia/Dubai', 'Europe/London', 'America/New_York',
     ...(typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : []),
-  ]));
+  ])).filter((zone): zone is string => typeof zone === 'string' && zone.length > 0);
   const [saved, setSaved] = useState(false);
   const save = useSaveStudySchedule({
     mutation: {

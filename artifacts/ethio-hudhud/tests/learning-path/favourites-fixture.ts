@@ -59,6 +59,12 @@ export const test = base.extend<{ favourites: ReturnType<typeof createState> }>(
         if (path === '/api/admin/me') return json({ signedIn: !!identity, role: null });
         if (path === '/api/app-settings') return json({ announcementAr: '', announcementEn: '', learningEnabled: true, aiEnabled: true });
         if (path === '/api/billing/status') return json({ ...status(!identity), plan: 'complimentary' });
+        if (path === '/api/study-reminders') return json({
+          enabled: false, time: '19:00', timezone: 'Africa/Addis_Ababa', scheduled: false,
+          paused: false, due: false, occurrenceKey: null, nextDate: null,
+          snoozedUntil: null, actionHref: '/learn',
+        });
+        if (/^\/api\/study-reminders\/devices\/[0-9a-f-]{36}$/.test(path)) return json(reminderDevice);
         if (/^\/api\/billing\/reminder-device\/[0-9a-f-]{36}$/.test(path)) return json(reminderDevice);
         if (path === '/api/courses') return json(courseSeed.map(c => ({
           ...c, completedCount: 0,

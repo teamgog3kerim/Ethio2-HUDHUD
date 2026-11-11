@@ -27,7 +27,7 @@ function browser({ values = new Map(), navigator = {}, blocked = false } = {}) {
   return { window, values, privacy: window.hudhudAnalyticsPrivacy, ...exports };
 }
 
-test('choice persists through reloads and gates both events and tracker automatic sends', () => {
+test('analytics stay off until explicit consent and persist that choice across reloads', () => {
   const app = browser();
   let events = 0, pageviews = 0;
   app.window.umami = { track: () => { events++; } };
@@ -35,6 +35,10 @@ test('choice persists through reloads and gates both events and tracker automati
   const autoPageview = () => {
     if (!app.window.localStorage.getItem('umami.disabled')) pageviews++;
   };
+  app.trackEvent('install_prompt_shown'); autoPageview();
+  assert.equal(events, 0); assert.equal(pageviews, 0);
+  assert.equal(app.getAnalyticsPrivacy().reason, 'preference');
+  assert.equal(app.setAnalyticsEnabled(true), true);
   app.trackEvent('install_prompt_shown'); autoPageview();
   assert.equal(events, 1); assert.equal(pageviews, 1);
   assert.equal(app.setAnalyticsEnabled(false), true);
@@ -49,17 +53,23 @@ test('choice persists through reloads and gates both events and tracker automati
   assert.equal(events, 1); // No replay or preference-change analytics.
 });
 
-test('DNT variants and GPC suppress automatic tracking before app startup', () => {
+test('DNT and GPC stay off until the user explicitly opts in for this site', () => {
   for (const navigator of [{ doNotTrack: '1' }, { doNotTrack: 'yes' },
     { msDoNotTrack: '1' }, { globalPrivacyControl: true }]) {
     const app = browser({ navigator });
     assert.equal(app.getAnalyticsPrivacy().reason, 'browser');
     assert.ok(app.values.get('umami.disabled'));
-    app.setAnalyticsEnabled(true);
-    assert.equal(app.getAnalyticsPrivacy().enabled, false);
-    assert.ok(app.values.get('umami.disabled'));
+    let sent = 0;
+    app.window.umami = { track: () => { sent++; } };
+    app.trackEvent('install_prompt_shown');
+    assert.equal(sent, 0);
+    assert.equal(app.setAnalyticsEnabled(true), true);
+    assert.equal(app.getAnalyticsPrivacy().enabled, true);
+    assert.equal(app.values.has('umami.disabled'), false);
+    app.trackEvent('install_prompt_shown');
+    assert.equal(sent, 1);
     const refreshed = browser({ values: app.values, navigator });
-    assert.equal(refreshed.getAnalyticsPrivacy().enabled, false);
+    assert.equal(refreshed.getAnalyticsPrivacy().enabled, true);
   }
 });
 
@@ -76,7 +86,7 @@ test('external tracker opt-outs are never cleared, including when saving fails',
   }
 });
 
-test('browser signals do not erase a saved off choice, and temporary owned blocks can clear', () => {
+test('an explicit opt-in remains enabled with browser signals until the user turns it off', () => {
   const app = browser({ navigator: { globalPrivacyControl: true } });
   app.setAnalyticsEnabled(false);
   app.window.navigator = {};
@@ -85,10 +95,34 @@ test('browser signals do not erase a saved off choice, and temporary owned block
   assert.equal(app.getAnalyticsPrivacy().enabled, true);
   app.window.navigator = { globalPrivacyControl: true };
   app.window.dispatchEvent(new Event('focus'));
-  assert.ok(app.values.get('umami.disabled'));
-  app.window.navigator = {};
-  app.window.dispatchEvent(new Event('focus'));
+  assert.equal(app.getAnalyticsPrivacy().enabled, true);
   assert.equal(app.values.has('umami.disabled'), false);
+  app.setAnalyticsEnabled(false);
+  assert.equal(app.values.has('umami.disabled'), true);
+  assert.equal(app.getAnalyticsPrivacy().enabled, false);
+  assert.ok(app.values.get('umami.disabled'));
+});
+
+test('visitor measurement needs both explicit choices, even when DNT is set', () => {
+  const app = browser({ navigator: { doNotTrack: '1' } });
+  const visitorExports = {};
+  const compiled = ts.transpileModule(source('../src/lib/visitor-analytics.ts'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText;
+  vm.runInNewContext(compiled, {
+    window: app.window,
+    exports: visitorExports,
+    require: moduleName => {
+      assert.equal(moduleName, '@/lib/analytics');
+      return { getAnalyticsPrivacy: app.getAnalyticsPrivacy };
+    },
+  });
+
+  assert.equal(visitorExports.visitorAnalyticsAllowed(), false);
+  app.setAnalyticsEnabled(true);
+  assert.equal(visitorExports.visitorAnalyticsAllowed(), false);
+  app.window.localStorage.setItem(visitorExports.VISITOR_ANALYTICS_KEY, 'on');
+  assert.equal(visitorExports.visitorAnalyticsAllowed(), true);
 });
 
 test('storage changes synchronize another tab before its next automatic pageview', () => {

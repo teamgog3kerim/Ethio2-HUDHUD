@@ -40,9 +40,10 @@ test('EthioDeploy payload contains only the project, normalized path, blank refe
   });
 });
 
-test('invalid, administrative, and unnormalized paths are rejected', () => {
+test('administrative paths and unnormalized paths are excluded from the external beacon', () => {
   const beacon = loadModule();
   assert.equal(beacon.createEthioDeployBeaconPayload('/admin', validId), null);
+  assert.equal(beacon.createEthioDeployBeaconPayload('/admin/users', validId), null);
   assert.equal(beacon.createEthioDeployBeaconPayload('/lesson/private-id', validId), null);
   assert.equal(beacon.createEthioDeployBeaconPayload('/learn', 'not-a-uuid'), null);
 });

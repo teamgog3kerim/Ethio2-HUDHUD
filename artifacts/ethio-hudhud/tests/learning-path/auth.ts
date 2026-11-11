@@ -20,6 +20,17 @@ export const useUser = () => {
   const auth = useAuth();
   return { isLoaded: auth.isLoaded, isSignedIn: auth.isSignedIn, user: auth.user };
 };
+export const AUTH_SESSION_QUERY_KEY = ['auth-session'] as const;
+export const submitAuth = async () => {
+  throw new Error('Authentication mutations are not used in isolated learning-path tests.');
+};
+export const changePassword = async () => {
+  throw new Error('Password changes are not used in isolated learning-path tests.');
+};
+export const useSession = () => {
+  const auth = useAuth();
+  return { isLoaded: auth.isLoaded, session: auth.user ? { createdAt: new Date(auth.user.createdAt) } : null };
+};
 export const useAuthActions = () => ({
   signOut: async () => {
     document.cookie = 'test-identity=; Max-Age=0; Path=/';

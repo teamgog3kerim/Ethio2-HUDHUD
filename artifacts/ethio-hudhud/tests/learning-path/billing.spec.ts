@@ -52,10 +52,9 @@ for (const lang of ['ar', 'en'] as const) {
       await expect(page.getByTestId('text-savings')).toContainText('$25 (14.4%)');
       for (const id of ['monthly', 'six_month']) {
         await expect(page.getByTestId(`button-subscribe-${id}`)).toHaveCount(0);
-        await page.getByTestId(`button-choose-${id}`).check();
+        await expect(page.getByTestId(`button-choose-${id}`)).toHaveAttribute('href', `/sign-up?plan=${id}`);
         await expect(page.getByTestId('button-live-checkout')).toHaveCount(0);
         await expect(page.getByTestId('button-sandbox-checkout')).toHaveCount(0);
-        await expect(page.getByTestId('button-plan-signup')).toBeVisible();
       }
       await expect(page.getByTestId('text-plans-note')).toContainText(text('الدفع غير متاح', 'Payment is currently unavailable'));
       await expect(page.getByTestId('text-pricing-note')).toContainText(text('لا ترسل بريداً إلكترونياً', 'do not send email'));

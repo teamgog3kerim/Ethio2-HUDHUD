@@ -1,27 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '@/lib/app';
+import { useAuth } from '@/lib/auth';
+import { claimLoginWelcome } from '@/lib/signup-welcome';
 import './startup-welcome.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const SKIP_PATH = /^\/(sign-in|sign-up|start|billing|choose-plan|sso-callback|oauth)(\/|$)/;
-const SKIP_PARAM = /(^|[?&#])(code|state|session_id|checkout_id|customer_session_token|checkout|oauth_callback|error)=/i;
-
-function shouldSkip(): boolean {
-  const { pathname, search, hash } = window.location;
-  const path = base && pathname.startsWith(base) ? pathname.slice(base.length) || '/' : pathname;
-  return SKIP_PATH.test(path) || SKIP_PARAM.test(search) || SKIP_PARAM.test(hash) || /sso-callback|callback/i.test(path + hash);
-}
-
-// Evaluated once per document launch; route transitions never re-trigger it.
-let pending = typeof window !== 'undefined' && !shouldSkip();
 const DURATION = 16000;
 
 export function StartupWelcome() {
   const { t, lang } = useApp();
-  const [open, setOpen] = useState(pending);
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
-  const close = useCallback(() => { pending = false; setOpen(false); }, []);
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !userId) return;
+    let storage: Storage | undefined;
+    try { storage = window.sessionStorage; } catch { /* Welcome screen is optional. */ }
+    if (claimLoginWelcome(userId, storage)) setOpen(true);
+  }, [isLoaded, isSignedIn, userId]);
 
   useEffect(() => {
     if (!open) return;

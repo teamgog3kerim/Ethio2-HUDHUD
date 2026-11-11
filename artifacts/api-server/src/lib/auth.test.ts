@@ -15,8 +15,8 @@ test("account passwords are stored as salted scrypt hashes and compared safely",
 
 test("username matching is case-insensitive and passwords have bounded safe lengths", () => {
   assert.equal(usernameKey("  Learn_User "), "learn_user");
-  assert.equal(validatePassword("0123456789"), true);
-  assert.equal(validatePassword("short"), false);
-  assert.equal(validatePassword(`a${"\0"}123456789`), false);
+  assert.equal(validatePassword("123456"), true);
+  assert.equal(validatePassword("12345"), false);
+  assert.equal(validatePassword(`a${"\0"}23456`), false);
   assert.equal(validatePassword("x".repeat(129)), false);
 });

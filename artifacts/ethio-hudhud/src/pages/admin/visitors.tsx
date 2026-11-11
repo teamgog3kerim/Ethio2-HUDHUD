@@ -5,7 +5,7 @@ import { AdminLayout } from '@/components/admin/layout';
 import { Card, ErrorState, Skeleton } from '@/components/bits';
 import { Notice } from '@/components/admin/ui';
 import { useApp } from '@/lib/app';
-import type { AdminVisitorDaily, AdminVisitorSegment } from '@workspace/api-client-react';
+import type { AdminVisitorAudience, AdminVisitorDaily, AdminVisitorSegment } from '@workspace/api-client-react';
 
 function formatCount(value: number) {
   return Number(value || 0).toLocaleString();
@@ -23,6 +23,16 @@ function categoryName(category: string, t: (ar: string, en: string) => string): 
   return known[key] ? t(...known[key]) : category;
 }
 
+function audienceName(category: AdminVisitorAudience['category'], t: (ar: string, en: string) => string): string {
+  const labels: Record<AdminVisitorAudience['category'], [string, string]> = {
+    admin: ['الإدارة والمالك', 'Admins and owner'],
+    learner: ['المتعلمون المسجلون', 'Signed-in learners'],
+    visitor: ['الزوار غير المسجلين', 'Public visitors'],
+    unclassified: ['سجلات أقدم غير مصنفة', 'Earlier unclassified records'],
+  };
+  return t(...labels[category]);
+}
+
 function CountryName({ code }: { code: string }) {
   const { t } = useApp();
   if (code === 'XX') return <>{t('غير متاح', 'Unavailable')}</>;
@@ -32,6 +42,35 @@ function CountryName({ code }: { code: string }) {
   } catch {
     return <>{code}</>;
   }
+}
+
+function AudienceBreakdown({ rows }: { rows: AdminVisitorAudience[] }) {
+  const { t } = useApp();
+  return (
+    <Card className="overflow-hidden p-0" data-testid="panel-visitor-audiences">
+      <div className="border-b border-border px-5 py-4">
+        <p className="text-sm text-muted-foreground">{t('من جلسة الدخول', 'From the active session')}</p>
+        <h2 className="font-display text-xl font-bold">{t('زيارات الإدارة والمتعلمين', 'Admin and learner visits')}</h2>
+      </div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-4 border-b border-border bg-muted/35 px-5 py-3 text-xs font-semibold text-muted-foreground">
+        <span>{t('الفئة', 'Audience')}</span>
+        <span className="text-end">{t('زوار فريدون', 'Unique visitors')}</span>
+        <span className="text-end">{t('مشاهدات', 'Pageviews')}</span>
+      </div>
+      <div className="divide-y divide-border">
+        {rows.map((row) => (
+          <div key={row.category} className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-4 px-5 py-3.5 text-sm">
+            <span className="font-medium">{audienceName(row.category, t)}</span>
+            <span className="text-end font-mono tabular-nums">{formatCount(row.visitors)}</span>
+            <span className="text-end font-mono tabular-nums">{formatCount(row.pageviews)}</span>
+          </div>
+        ))}
+      </div>
+      <p className="border-t border-border px-5 py-3 text-xs leading-relaxed text-muted-foreground">
+        {t('تُحدد الفئة من جلسة الدخول دون حفظ معرف الحساب. السجلات السابقة لإضافة هذا التصنيف تظهر ضمن السجلات الأقدم.', 'Audience is derived from the signed-in session without storing account IDs. Events recorded before this category was added appear as earlier unclassified records.')}
+      </p>
+    </Card>
+  );
 }
 
 function TrendChart({ rows }: { rows: AdminVisitorDaily[] }) {
@@ -160,6 +199,8 @@ function VisitorsBody() {
         })}
       </div>
 
+      <AudienceBreakdown rows={data.audiences} />
+
       <div className="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
         <TrendChart rows={data.daily} />
         <Card className="overflow-hidden p-0" data-testid="panel-countries">
@@ -176,7 +217,7 @@ function VisitorsBody() {
               <div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.min(100, (country.visitors / maxCountry) * 100)}%` }} /></div>
             </div>)}
           </div> : <div className="grid min-h-44 place-items-center px-5 text-center text-sm text-muted-foreground">{t('لا توجد بيانات بلد لهذه الفترة.', 'No country data for this period.')}</div>}
-          <p className="border-t border-border px-5 py-3 text-xs leading-relaxed text-muted-foreground">{t('تقدير عام من وكيل Replit؛ XX يعني أن البلد غير متاح.', 'A broad estimate from the Replit proxy; XX means unavailable.')}</p>
+          <p className="border-t border-border px-5 py-3 text-xs leading-relaxed text-muted-foreground">{t('تقدير عام من وكيل الاستضافة عند توفره؛ XX يعني أن البلد غير متاح.', 'A broad estimate from the hosting proxy when available; XX means unavailable.')}</p>
         </Card>
       </div>
 

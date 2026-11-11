@@ -9,10 +9,10 @@ export default defineConfig({
   root: import.meta.dirname,
   plugins: [react(), tailwindcss({ optimize: false })],
   resolve: {
-    alias: {
-      '@': path.resolve(import.meta.dirname, '../../src'),
-      '@/lib/auth': path.resolve(import.meta.dirname, 'auth.ts'),
-    },
+    alias: [
+      { find: /^@\/lib\/auth$/, replacement: path.resolve(import.meta.dirname, 'auth.ts') },
+      { find: '@', replacement: path.resolve(import.meta.dirname, '../../src') },
+    ],
     dedupe: ['react', 'react-dom', '@tanstack/react-query'],
   },
   server: { host: '127.0.0.1', port: 4179, strictPort: true },

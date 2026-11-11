@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '@/lib/app';
-import { getAnalyticsPrivacy } from '@/lib/analytics';
+import { getAnalyticsPrivacy, setAnalyticsEnabled } from '@/lib/analytics';
 import { hasPrivacySignal, readVisitorConsent, setVisitorConsent, type VisitorConsent } from '@/lib/visitor-analytics';
 
 export function VisitorAnalyticsPreference() {
@@ -22,6 +22,17 @@ export function VisitorAnalyticsPreference() {
     };
   }, []);
   const blocked = consent === 'unavailable' || hasPrivacySignal();
+  const canEnableBoth = !blocked && !['browser', 'tracker', 'storage'].includes(getAnalyticsPrivacy().reason ?? '');
+  const bothEnabled = consent === 'on' && privacyEnabled && !hasPrivacySignal();
+  const enableBoth = () => {
+    const analyticsSaved = setAnalyticsEnabled(true);
+    const visitorSaved = setVisitorConsent(true);
+    const analyticsState = getAnalyticsPrivacy();
+    setSaveError(!analyticsSaved || !visitorSaved || !analyticsState.enabled);
+    setPrivacyEnabled(analyticsState.enabled);
+    setConsent(readVisitorConsent());
+    if (analyticsSaved && visitorSaved && analyticsState.enabled) window.location.reload();
+  };
 
   return (
     <section className="my-5 space-y-3 rounded-2xl border border-border bg-card p-5" aria-labelledby="visitor-analytics-heading" data-testid="section-visitor-analytics">
@@ -36,10 +47,15 @@ export function VisitorAnalyticsPreference() {
       </div>
       <p id="visitor-analytics-description" className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
         {t(
-          'هذا الاختيار منفصل عن تحليلات Replit/Umami ومتوقف افتراضيًا. عند تفعيله، يسجل تقرير الزيارات لدينا معرف متصفح مجهولًا يتجدد كل 30 يومًا، ومعرف مشاهدة جديدًا، ومسارًا عامًا للصفحة ولغة التطبيق. كما نرسل معرّف المشروع والمعرّف المجهول نفسه ومسار الصفحة المنقح إلى منارة EthioDeploy، دون جهة الإحالة أو تفاصيل الأداء. قد تقدّر EthioDeploy البلد من طلب الشبكة. لا نرسل معرّف الحساب أو البريد أو الاسم أو نصوصًا حرة أو موقع المتصفح. نحتفظ ببياناتنا 90 يومًا، أما احتفاظ EthioDeploy فيخضع لإعدادات خدمتها. الأعداد تقريبية وتُعرض كمجاميع فقط.',
-          'This opt-in is separate from Replit/Umami analytics and is off by default. When enabled, our visitor report records a rotating anonymous browser ID (30 days), a fresh pageview ID, a broad page path, and app language. We also send the project ID, same anonymous ID, and normalized page path to EthioDeploy’s beacon; referrer and performance details are omitted. EthioDeploy may estimate country from the network request. We do not send account IDs, email, names, free text, or browser location. Our records are kept for 90 days; EthioDeploy retention follows its service settings. Counts are approximate and shown only in aggregate.',
+          'هذا الاختيار متوقف افتراضيًا ويتطلب أيضًا السماح بالتحليلات الاختيارية أعلاه. عند تفعيله، يسجل تقرير الزيارات معرف متصفح مجهولًا يتجدد كل 30 يومًا، ومعرف مشاهدة جديدًا، ومسارًا عامًا للصفحة ولغة التطبيق، وفئة عامة: إدارة أو متعلم مسجل أو زائر غير مسجل. تُستنتج الفئة من الجلسة ولا نحفظ معرف الحساب. نرسل معرّف المشروع والمعرّف المجهول ومسار الصفحة المنقح إلى منارة EthioDeploy؛ دون جهة الإحالة أو تفاصيل الأداء. قد تقدّر EthioDeploy البلد من طلب الشبكة. لا نرسل البريد أو الاسم أو نصوصًا حرة أو موقع المتصفح. نحتفظ ببياناتنا 90 يومًا، أما احتفاظ EthioDeploy فيخضع لإعدادات خدمتها. الأعداد تقريبية ومجمّعة فقط.',
+          'This opt-in is off by default and also requires optional analytics above to be allowed. When enabled, our visitor report records a rotating anonymous browser ID (30 days), a fresh pageview ID, a broad page path and app language, plus a broad audience category: admin, signed-in learner, or anonymous visitor. The category comes from the session; we do not store account IDs. We send the project ID, anonymous ID, and normalized public page paths to EthioDeploy’s beacon; admin-panel paths, referrer and performance details are omitted. EthioDeploy may estimate country from the network request. We do not send email, names, free text, or browser location. Our records are kept for 90 days; EthioDeploy retention follows its service settings. Counts are approximate and aggregate only.',
         )}
       </p>
+      {!bothEnabled && canEnableBoth && (
+        <button type="button" onClick={enableBoth} className="press min-h-11 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" data-testid="button-enable-both-analytics">
+          {t('تفعيل الخيارين لهذا المتصفح', 'Enable both settings in this browser')}
+        </button>
+      )}
       <label className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3 text-sm font-semibold">
         <span>{t('السماح بقياس الزيارات المجهولة', 'Allow anonymous visitor measurement')}</span>
         <input
@@ -62,8 +78,8 @@ export function VisitorAnalyticsPreference() {
           ? t('تخزين المتصفح غير متاح؛ لذلك تبقى هذه التحليلات متوقفة.', 'Browser storage is unavailable, so these analytics remain off.')
           : hasPrivacySignal()
             ? t('متوقفة احترامًا لإشارة عدم التتبع أو التحكم العالمي بالخصوصية.', 'Off to respect Do Not Track or Global Privacy Control.')
-            : !privacyEnabled
-              ? t('لن تُرسل بيانات لوحة الزوار إلا إذا فُعّل هذا الاختيار وتوفرت موافقة التحليلات العامة في المتصفح.', 'Visitor data is sent only when this choice is on and the app-wide analytics privacy check also allows it.')
+              : !privacyEnabled
+              ? t('لن تُرسل بيانات لوحة الزوار حتى تسمح بالتحليلات الاختيارية أعلاه أيضًا.', 'Visitor data will not be sent until optional analytics above is allowed too.')
               : consent === 'on'
                 ? t('مفعّلة لهذا المتصفح فقط. يمكنك إيقافها في أي وقت؛ عند الإيقاف يُحذف المعرّف المحلي.', 'On for this browser only. Turn it off any time; opting out clears the local visitor ID.')
                 : t('متوقفة افتراضيًا. لا تُرسل زيارات الصفحات حتى تختار تفعيلها.', 'Off by default. Pageviews are not sent unless you explicitly turn this on.')}

@@ -25,6 +25,7 @@ router.get("/visitors", async (req, res): Promise<void> => {
     devices,
     browsers,
     languages,
+    audiences,
     levels,
     profileLanguages,
   ] = await Promise.all([
@@ -45,6 +46,12 @@ router.get("/visitors", async (req, res): Promise<void> => {
     db.select({ category: visitorPageviews.language, visitors: countDistinct(visitorPageviews.visitorId) })
       .from(visitorPageviews).where(gte(visitorPageviews.createdAt, since))
       .groupBy(visitorPageviews.language).orderBy(sql`count(distinct ${visitorPageviews.visitorId}) desc`),
+    db.select({
+      category: visitorPageviews.audience,
+      visitors: countDistinct(visitorPageviews.visitorId),
+      pageviews: count(),
+    }).from(visitorPageviews).where(gte(visitorPageviews.createdAt, since))
+      .groupBy(visitorPageviews.audience),
     db.select({ category: level, visitors: count() }).from(learners)
       .where(like(learners.identity, "account:%")).groupBy(level).orderBy(sql`count(*) desc`),
     db.select({ category: profileLanguage, visitors: count() }).from(learners)
@@ -56,6 +63,12 @@ router.get("/visitors", async (req, res): Promise<void> => {
     levels,
     languages: profileLanguages,
   };
+  const audienceCounts = new Map(audiences.map((item) => [item.category, item]));
+  const audienceBreakdown = (["admin", "learner", "visitor", "unclassified"] as const).map((category) => ({
+    category,
+    visitors: audienceCounts.get(category)?.visitors ?? 0,
+    pageviews: audienceCounts.get(category)?.pageviews ?? 0,
+  }));
 
   res.json(GetAdminVisitorsResponse.parse({
     days,
@@ -66,6 +79,7 @@ router.get("/visitors", async (req, res): Promise<void> => {
     devices,
     browsers,
     languages,
+    audiences: audienceBreakdown,
     learningProfiles,
   }));
 });

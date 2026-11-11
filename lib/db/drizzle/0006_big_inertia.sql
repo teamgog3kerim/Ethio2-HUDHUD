@@ -1,0 +1,2 @@
+ALTER TABLE "visitor_pageviews" ADD COLUMN "audience" text DEFAULT 'unclassified' NOT NULL;--> statement-breakpoint
+CREATE INDEX "visitor_pageviews_audience_created_idx" ON "visitor_pageviews" USING btree ("audience","created_at");

@@ -19,7 +19,9 @@
 - Guest mode on the web; native learning requires sign-in.
 - Onboarding: goals, selected proficiency, daily target (default 60 minutes),
   timezone, reminder preference, and a conservative three-question web placement check.
-- Six courses with **12 distinct pilot lessons** and multiple-choice exercises.
+- Six courses across beginner, intermediate and advanced stages with **70
+  distinct pilot lessons**, practical conversations, and 101 number words from
+  0 through 100, with multiple-choice exercises.
 - Server-side answer keys, per-question explanations, 75% pass threshold,
   one-time completion XP, active-time caps and a duplicate-submission window.
 - Fidel reference, optional transliteration, and scheduled vocabulary flashcards.
@@ -48,8 +50,10 @@
 - **Content review:** no seed content is described as reviewer-approved. A qualified
   Amharic reviewer must verify orthography, translations, explanations, transliteration
   and exercise answer keys. Do not publish these pilots as a certified curriculum.
-- **Curriculum size:** the requested 24 modules / 120 reviewed lessons, advanced
-  curriculum, tutor-authored materials and full coverage are not yet authored.
+- **Curriculum size and review:** the 70 current lessons are pilot material, not
+  the requested 120 professionally reviewed lessons. The six-month structure,
+  conversation lessons and 0–100 number lessons are present, but qualified
+  Amharic review and complete coverage remain outstanding.
 - **Audio:** no fake recordings, speech synthesis, voice conversation, listening
   exercises, or fabricated pronunciation scores. Recordings need licensing/review;
   pronunciation analysis needs a provider that actually supports Amharic.

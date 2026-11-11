@@ -16,7 +16,7 @@ const authAttemptLimit = rateLimit({
 const registerBody = z.object({
   fullName: z.string().trim().min(2).max(80),
   username: z.string().trim().regex(/^[A-Za-z0-9_]{3,24}$/),
-  password: z.string().min(10).max(128),
+  password: z.string().min(6).max(128),
 });
 const loginBody = z.object({
   username: z.string().trim().min(3).max(24),
@@ -84,9 +84,9 @@ router.post("/auth/password", authAttemptLimit, async (req, res): Promise<void> 
   if (!userId || !sessionHash) throw new HttpError(401, "سجّل الدخول لتغيير كلمة المرور.");
   const parsed = z.object({
     currentPassword: z.string().min(1).max(128),
-    newPassword: z.string().min(10).max(128),
+    newPassword: z.string().min(6).max(128),
   }).safeParse(req.body);
-  if (!parsed.success || !validatePassword(parsed.data.newPassword)) throw new HttpError(400, "كلمة المرور الجديدة يجب أن تتكون من 10 إلى 128 حرفًا.");
+  if (!parsed.success || !validatePassword(parsed.data.newPassword)) throw new HttpError(400, "كلمة المرور الجديدة يجب أن تتكون من 6 إلى 128 حرفًا.");
   const [user] = await db.select().from(authUsers).where(eq(authUsers.id, userId)).limit(1);
   if (!user || !await verifyPassword(parsed.data.currentPassword, user.passwordHash)) {
     throw new HttpError(400, "كلمة المرور الحالية غير صحيحة.");

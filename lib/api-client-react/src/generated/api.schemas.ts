@@ -40,7 +40,7 @@ export const VisitorPageviewInputLanguage = {
 export interface VisitorPageviewInput {
   visitorId: string;
   pageViewId: string;
-  /** @pattern ^/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120}$ */
+  /** @pattern ^(?:/admin|/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120})$ */
   path: string;
   language: VisitorPageviewInputLanguage;
 }
@@ -60,6 +60,22 @@ export interface AdminVisitorCountry {
 export interface AdminVisitorSegment {
   category: string;
   visitors: number;
+}
+
+export type AdminVisitorAudienceCategory = typeof AdminVisitorAudienceCategory[keyof typeof AdminVisitorAudienceCategory];
+
+
+export const AdminVisitorAudienceCategory = {
+  admin: 'admin',
+  learner: 'learner',
+  visitor: 'visitor',
+  unclassified: 'unclassified',
+} as const;
+
+export interface AdminVisitorAudience {
+  category: AdminVisitorAudienceCategory;
+  visitors: number;
+  pageviews: number;
 }
 
 export interface AdminLearningProfiles {
@@ -85,6 +101,7 @@ export interface AdminVisitors {
   devices: AdminVisitorSegment[];
   browsers: AdminVisitorSegment[];
   languages: AdminVisitorSegment[];
+  audiences: AdminVisitorAudience[];
   learningProfiles: AdminLearningProfiles;
 }
 

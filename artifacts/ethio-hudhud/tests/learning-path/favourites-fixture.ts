@@ -50,6 +50,10 @@ export const test = base.extend<{ favourites: ReturnType<typeof createState> }>(
       const identity = (request.headers().cookie?.match(/(?:^|; )test-identity=([^;]+)/)?.[1] ?? null) as Identity;
       state.identity = identity;
       const json = (body: unknown, status = 200) => route.fulfill({ status, json: body });
+      if (request.method() === 'GET' && path === '/api/auth/session') return json({
+        isSignedIn: !!identity,
+        user: identity ? { id: identity, fullName: 'Test learner', username: identity, createdAt: '2026-01-01T00:00:00.000Z', lastSignInAt: null } : null,
+      });
       if (request.method() === 'GET') {
         if (path === '/api/profile') return json({ id: identity ?? 'guest', displayName: 'متعلّم', isGuest: !identity, language: 'ar' });
         if (path === '/api/admin/me') return json({ signedIn: !!identity, role: null });

@@ -16,7 +16,8 @@ function uuid(): string | null {
 }
 
 function anonymousPath(pathname: string): string {
-  if (!pathname.startsWith('/') || pathname === '/admin' || pathname.startsWith('/admin/')) return '';
+  if (!pathname.startsWith('/')) return '';
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return '/admin';
   const clean = pathname.split(/[?#]/, 1)[0].replace(/\/+$/, '') || '/';
   if (clean === '/') return '/';
   const routes = ['/dashboard', '/learn', '/fidel', '/plan', '/review', '/tutor', '/progress', '/onboarding', '/account', '/premium', '/choose-plan', '/privacy', '/terms'];

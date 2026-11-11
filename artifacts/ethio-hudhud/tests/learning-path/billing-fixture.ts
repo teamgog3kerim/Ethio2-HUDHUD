@@ -56,6 +56,10 @@ export const test = base.extend<{ billing: ReturnType<typeof createState> }>({
         return route.fulfill({ status: 500, json: { error: 'Unexpected test request' } });
       }
       const json = (body: unknown) => route.fulfill({ json: body });
+      if (url.pathname === '/api/auth/session') return json({
+        isSignedIn: !!id,
+        user: id ? { id, fullName: 'Test learner', username: id, createdAt: '2026-01-01T00:00:00.000Z', lastSignInAt: null } : null,
+      });
       if (/^\/api\/billing\/reminder-device\/[0-9a-f-]{36}$/.test(url.pathname)) return json(reminderDevice);
       if (url.pathname === '/api/billing/status') {
         billing.reads.push(id);

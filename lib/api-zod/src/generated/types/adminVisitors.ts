@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { AdminLearningProfiles } from './adminLearningProfiles';
+import type { AdminVisitorAudience } from './adminVisitorAudience';
 import type { AdminVisitorCountry } from './adminVisitorCountry';
 import type { AdminVisitorDaily } from './adminVisitorDaily';
 import type { AdminVisitorsDays } from './adminVisitorsDays';
@@ -19,5 +20,6 @@ export interface AdminVisitors {
   devices: AdminVisitorSegment[];
   browsers: AdminVisitorSegment[];
   languages: AdminVisitorSegment[];
+  audiences: AdminVisitorAudience[];
   learningProfiles: AdminLearningProfiles;
 }

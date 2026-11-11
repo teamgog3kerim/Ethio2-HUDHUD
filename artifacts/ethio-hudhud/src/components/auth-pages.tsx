@@ -7,6 +7,7 @@ import { Toggles } from "@/components/shell";
 import { Skeleton } from "@/components/bits";
 import { useApp } from "@/lib/app";
 import { AUTH_SESSION_QUERY_KEY, submitAuth, useAuth, type AuthSession } from "@/lib/auth";
+import { markLoginWelcome } from "@/lib/signup-welcome";
 import { parsePlanChoice } from "@/lib/plan-choice";
 import { paidPlanFromSearch, signInDestination, signUpDestination } from "@/lib/auth-flow";
 import { cn } from "@/lib/utils";
@@ -102,6 +103,8 @@ function AuthForm({ mode }: { mode: "in" | "up" }) {
       qc.setQueryData<AuthSession>(AUTH_SESSION_QUERY_KEY, session);
       if (mode === "up" && session.user) {
         try { window.sessionStorage.setItem("hudhud:signup-welcome", session.user.id); } catch { /* welcome is optional */ }
+      } else if (mode === "in" && session.user) {
+        try { markLoginWelcome(session.user.id, window.sessionStorage); } catch { /* Welcome is optional. */ }
       }
       navigate(dest, { replace: true });
     } catch (cause) {
@@ -123,8 +126,8 @@ function AuthForm({ mode }: { mode: "in" | "up" }) {
           {mode === "up" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{t("من 3 إلى 24 حرفًا بالإنجليزية أو رقمًا أو _", "3–24 letters, numbers, or underscores")}</span>}
         </label>
         <label className="block text-sm font-semibold">{t("كلمة المرور", "Password")}
-          <input className={`${input} mt-1.5`} dir="ltr" type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} minLength={mode === "up" ? 10 : 1} maxLength={128} required onChange={event => setPassword(event.target.value)} data-testid="input-password" />
-          {mode === "up" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{t("استخدم 10 أحرف على الأقل. لا يوجد استرداد بالبريد الإلكتروني.", "Use at least 10 characters. Email-based password recovery is not available.")}</span>}
+          <input className={`${input} mt-1.5`} dir="ltr" type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} minLength={mode === "up" ? 6 : 1} maxLength={128} required onChange={event => setPassword(event.target.value)} data-testid="input-password" />
+          {mode === "up" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{t("استخدم 6 أحرف على الأقل. لا يوجد استرداد بالبريد الإلكتروني.", "Use at least 6 characters. Email-based password recovery is not available.")}</span>}
         </label>
         {error && <p role="alert" className="flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive" data-testid="text-auth-error"><AlertTriangle className="size-4 shrink-0" />{error}</p>}
         <button type="submit" disabled={pending} className="press inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-bold text-primary-foreground disabled:opacity-60" data-testid={mode === "in" ? "button-login" : "button-register"}>

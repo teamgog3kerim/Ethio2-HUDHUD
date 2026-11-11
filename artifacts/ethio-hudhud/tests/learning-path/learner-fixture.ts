@@ -33,6 +33,7 @@ export const test = base.extend<{ learner: {
       const request = route.request();
       const path = new URL(request.url()).pathname;
       const json = (body: unknown, status = 200) => route.fulfill({ status, json: body });
+      if (path === '/api/auth/session') return json({ isSignedIn: false, user: null });
       if (path === '/api/courses') return json(catalog());
       if (path === '/api/profile') return json({ id: 'isolated-browser-learner', displayName: 'متعلّم', isGuest: true, language: 'ar' });
       if (path === '/api/admin/me') return json({ signedIn: false, role: null });

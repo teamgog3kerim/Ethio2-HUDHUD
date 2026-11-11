@@ -5,6 +5,7 @@ export const visitorPageviews = pgTable("visitor_pageviews", {
   pageViewId: uuid("page_view_id").primaryKey(),
   visitorId: uuid("visitor_id").notNull(),
   path: text("path").notNull(),
+  audience: text("audience").notNull().default("unclassified"),
   country: text("country").notNull().default("XX"),
   device: text("device").notNull().default("unknown"),
   browser: text("browser").notNull().default("other"),
@@ -13,6 +14,7 @@ export const visitorPageviews = pgTable("visitor_pageviews", {
 }, (table) => [
   index("visitor_pageviews_created_idx").on(table.createdAt),
   index("visitor_pageviews_visitor_created_idx").on(table.visitorId, table.createdAt),
+  index("visitor_pageviews_audience_created_idx").on(table.audience, table.createdAt),
 ]);
 
 export const insertVisitorPageviewSchema = createInsertSchema(visitorPageviews);

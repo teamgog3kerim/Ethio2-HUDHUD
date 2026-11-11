@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  claimSignupWelcome, isNewGoogleSignup, scheduleWelcomeDismiss, WELCOME_DURATION_MS,
+  claimLoginWelcome, claimSignupWelcome, isNewGoogleSignup, markLoginWelcome,
+  scheduleWelcomeDismiss, WELCOME_DURATION_MS,
 } from './signup-welcome';
 
 const now = Date.UTC(2026, 9, 24, 9);
@@ -35,10 +36,26 @@ test('the same learner gets one welcome, not another on navigation or remount', 
   assert.equal(claimSignupWelcome('another-new-learner', storage), true);
 });
 
+test('login welcome appears only after a successful login marker is claimed once', () => {
+  const values = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+    removeItem: (key: string) => { values.delete(key); },
+  };
+  markLoginWelcome('returning-learner', storage);
+  assert.equal(claimLoginWelcome('different-user', storage), false);
+  assert.equal(values.has('hudhud:login-welcome'), false);
+  markLoginWelcome('returning-learner', storage);
+  assert.equal(claimLoginWelcome('returning-learner', storage), true);
+  assert.equal(claimLoginWelcome('returning-learner', storage), false);
+});
+
 test('blocked storage is safe and still prevents repeated welcomes in-page', () => {
   const storage = { getItem: () => { throw Error('blocked'); }, setItem: () => { throw Error('blocked'); } };
   assert.equal(claimSignupWelcome('storage-blocked-learner', storage), true);
   assert.equal(claimSignupWelcome('storage-blocked-learner', storage), false);
+  assert.equal(claimLoginWelcome('storage-blocked-learner', storage), false);
   assert.equal(claimSignupWelcome('', storage), false);
 });
 

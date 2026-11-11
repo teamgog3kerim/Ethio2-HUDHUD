@@ -43,6 +43,13 @@
       "when": 1794227596578,
       "tag": "0005_needy_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794377680483,
+      "tag": "0006_big_inertia",
+      "breakpoints": true
     }
   ]
 }

@@ -56,9 +56,9 @@ export function AuthScreen({ mode }: { mode: "in" | "up" }) {
         <Txt>كلمة المرور</Txt>
         <TextInput testID="input-password" accessibilityLabel="كلمة المرور" value={password} onChangeText={setPassword} editable={!busy} secureTextEntry={!showPassword} autoCapitalize="none" autoCorrect={false} autoComplete={register ? "new-password" : "current-password"} maxLength={128} style={inputStyle} onSubmitEditing={() => void submit()} />
         <Pressable accessibilityRole="button" accessibilityLabel={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"} onPress={() => setShowPassword(v => !v)}><Txt style={{ color: c.primary, fontSize: 13 }}>{showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}</Txt></Pressable>
-        {register && <Txt style={{ fontSize: 12, color: c.mutedForeground }}>استخدم 10 أحرف على الأقل. احفظ كلمة المرور؛ لا يتوفر استرداد عبر البريد الإلكتروني.</Txt>}
+        {register && <Txt style={{ fontSize: 12, color: c.mutedForeground }}>استخدم 6 أحرف على الأقل. احفظ كلمة المرور؛ لا يتوفر استرداد عبر البريد الإلكتروني.</Txt>}
         {!!error && <Txt accessibilityRole="alert" accessibilityLiveRegion="assertive" style={{ color: c.destructive }}>{error}</Txt>}
-        <Action title={busy ? "جارٍ المتابعة…" : register ? "إنشاء الحساب وبدء التعلّم" : "تسجيل الدخول"} onPress={() => void submit()} disabled={busy || !username.trim() || !password || (register && (!fullName.trim() || password.length < 10))} />
+        <Action title={busy ? "جارٍ المتابعة…" : register ? "إنشاء الحساب وبدء التعلّم" : "تسجيل الدخول"} onPress={() => void submit()} disabled={busy || !username.trim() || !password || (register && (!fullName.trim() || password.length < 6))} />
       </Card>
       <Txt style={{ color: c.mutedForeground, fontSize: 12 }}>تقدّم الضيف ومحفوظاته منفصلة عن الحساب ولا تنتقل إليه تلقائياً. تسجيل الخروج لا يحذف بيانات تعلّمك.</Txt>
       <Action title="العودة إلى البداية" secondary disabled={busy} onPress={() => router.replace("/welcome")} />

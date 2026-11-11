@@ -35,6 +35,8 @@ export * from './adminUsers';
 export * from './adminUserSelectedPlan';
 export * from './adminUserUpdate';
 export * from './adminUserUpdateRole';
+export * from './adminVisitorAudience';
+export * from './adminVisitorAudienceCategory';
 export * from './adminVisitorCountry';
 export * from './adminVisitorDaily';
 export * from './adminVisitors';

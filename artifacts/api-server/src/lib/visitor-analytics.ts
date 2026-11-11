@@ -1,8 +1,18 @@
 import { lt } from "drizzle-orm";
 import { db, visitorPageviews } from "@workspace/db";
 
+export type VisitorAudience = "admin" | "learner" | "visitor" | "unclassified";
+
 const COUNTRY_CODE = /^[A-Z]{2}$/;
 let lastPruneAt = 0;
+
+export function classifyVisitorAudience(
+  role: "owner" | "admin" | "learner" | null | undefined,
+): VisitorAudience {
+  if (role === "owner" || role === "admin") return "admin";
+  if (role === "learner") return "learner";
+  return "visitor";
+}
 
 export async function pruneExpiredVisitorPageviews(now = Date.now()): Promise<void> {
   if (now - lastPruneAt <= 60 * 60 * 1000) return;

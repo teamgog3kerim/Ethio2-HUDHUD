@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyVisitorBrowser, classifyVisitorDevice, normalizeVisitorCountry } from "./visitor-analytics";
+import { classifyVisitorAudience, classifyVisitorBrowser, classifyVisitorDevice, normalizeVisitorCountry } from "./visitor-analytics";
+
+test("visitor audience is classified by authenticated role without storing identity", () => {
+  assert.equal(classifyVisitorAudience("owner"), "admin");
+  assert.equal(classifyVisitorAudience("admin"), "admin");
+  assert.equal(classifyVisitorAudience("learner"), "learner");
+  assert.equal(classifyVisitorAudience(null), "visitor");
+  assert.equal(classifyVisitorAudience(undefined), "visitor");
+});
 
 test("visitor country accepts only a normalized two-letter proxy country code", () => {
   assert.equal(normalizeVisitorCountry(" us "), "US");

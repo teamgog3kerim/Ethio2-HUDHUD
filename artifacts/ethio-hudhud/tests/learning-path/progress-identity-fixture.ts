@@ -48,6 +48,10 @@ export const test = base.extend<{ progress: ReturnType<typeof createState> }>({
       const path = new URL(request.url()).pathname;
       const identity = (request.headers().cookie?.match(/(?:^|; )test-identity=([^;]+)/)?.[1] ?? null) as Identity;
       const record = state.records.get(identity);
+      if (request.method() === 'GET' && path === '/api/auth/session') return route.fulfill({ json: {
+        isSignedIn: !!identity,
+        user: identity ? { id: identity, fullName: 'Test learner', username: identity, createdAt: '2026-01-01T00:00:00.000Z', lastSignInAt: null } : null,
+      } });
       const completion = path.match(/^\/api\/lessons\/([^/]+)\/complete$/);
       if (request.method() === 'POST' && completion && record) {
         const lesson = lessons.find(l => l.id === completion[1]);

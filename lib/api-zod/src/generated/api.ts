@@ -1113,6 +1113,11 @@ export const GetAdminVisitorsResponse = zod.object({
   "category": zod.string(),
   "visitors": zod.number().int()
 })),
+  "audiences": zod.array(zod.object({
+  "category": zod.enum(['admin', 'learner', 'visitor', 'unclassified']),
+  "visitors": zod.number().int(),
+  "pageviews": zod.number().int()
+})),
   "learningProfiles": zod.object({
   "totalLearners": zod.number().int(),
   "levels": zod.array(zod.object({
@@ -1130,7 +1135,7 @@ export const GetAdminVisitorsResponse = zod.object({
 /**
  * Records an anonymous page view only after optional analytics consent. Country is resolved from the Replit deployment proxy, never from the client request body. No IP address or account identifier is stored.
  */
-export const recordVisitorPageviewBodyPathRegExp = new RegExp('^/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120}$');
+export const recordVisitorPageviewBodyPathRegExp = new RegExp('^(?:/admin|/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120})$');
 
 
 export const RecordVisitorPageviewBody = zod.object({

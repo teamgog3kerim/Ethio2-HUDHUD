@@ -2,6 +2,26 @@ export const WELCOME_DURATION_MS = 2000;
 const NEW_ACCOUNT_WINDOW_MS = 5 * 60 * 1000;
 const FIRST_SESSION_WINDOW_MS = 60 * 1000;
 const shownThisPage = new Set<string>();
+const LOGIN_WELCOME_KEY = 'hudhud:login-welcome';
+
+export function markLoginWelcome(userId: string, storage?: Pick<Storage, 'setItem'>): void {
+  if (!userId || !storage) return;
+  try { storage.setItem(LOGIN_WELCOME_KEY, userId); } catch { /* Welcome screens are optional. */ }
+}
+
+export function claimLoginWelcome(
+  userId: string,
+  storage?: Pick<Storage, 'getItem' | 'removeItem'>,
+): boolean {
+  if (!userId || !storage) return false;
+  try {
+    const pendingUserId = storage.getItem(LOGIN_WELCOME_KEY);
+    if (pendingUserId) storage.removeItem(LOGIN_WELCOME_KEY);
+    return pendingUserId === userId;
+  } catch {
+    return false;
+  }
+}
 
 export function isNewGoogleSignup(
   accountCreatedAt: number,

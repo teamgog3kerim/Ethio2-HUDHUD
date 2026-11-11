@@ -9,7 +9,7 @@ import type { VisitorPageviewInputLanguage } from './visitorPageviewInputLanguag
 export interface VisitorPageviewInput {
   visitorId: string;
   pageViewId: string;
-  /** @pattern ^/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120}$ */
+  /** @pattern ^(?:/admin|/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120})$ */
   path: string;
   language: VisitorPageviewInputLanguage;
 }

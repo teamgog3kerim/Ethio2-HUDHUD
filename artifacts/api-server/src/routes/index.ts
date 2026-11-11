@@ -32,8 +32,8 @@ router.get("/app-settings", async (_req, res) => {
   const { defaultDailyGoal: _privateDefault, ...settings } = await getAppSettings();
   res.json(settings);
 });
-router.use("/visitor/pageview", visitorAnalyticsRouter);
 router.use(enforceAccountStatus);
+router.use("/visitor/pageview", visitorAnalyticsRouter);
 router.use("/admin", adminRouter);
 router.use(polarSandboxRouter);
 router.use(polarLiveRouter);

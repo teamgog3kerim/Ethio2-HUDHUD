@@ -749,7 +749,7 @@ components:
       properties:
         visitorId: { type: string, format: uuid }
         pageViewId: { type: string, format: uuid }
-        path: { type: string, pattern: "^/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120}$" }
+        path: { type: string, pattern: "^(?:/admin|/(?!admin(?:/|$))[A-Za-z0-9/_-]{0,120})$" }
         language: { type: string, enum: [ar, en, other] }
     AdminVisitorDaily:
       type: object
@@ -771,6 +771,13 @@ components:
       properties:
         category: { type: string }
         visitors: { type: integer }
+    AdminVisitorAudience:
+      type: object
+      required: [category, visitors, pageviews]
+      properties:
+        category: { type: string, enum: [admin, learner, visitor, unclassified] }
+        visitors: { type: integer }
+        pageviews: { type: integer }
     AdminLearningProfiles:
       type: object
       required: [totalLearners, levels, languages]
@@ -784,7 +791,7 @@ components:
           items: { $ref: "#/components/schemas/AdminVisitorSegment" }
     AdminVisitors:
       type: object
-      required: [days, visitors, pageviews, daily, countries, devices, browsers, languages, learningProfiles]
+      required: [days, visitors, pageviews, daily, countries, devices, browsers, languages, audiences, learningProfiles]
       properties:
         days: { type: integer, enum: [7, 30] }
         visitors: { type: integer }
@@ -804,6 +811,9 @@ components:
         languages:
           type: array
           items: { $ref: "#/components/schemas/AdminVisitorSegment" }
+        audiences:
+          type: array
+          items: { $ref: "#/components/schemas/AdminVisitorAudience" }
         learningProfiles: { $ref: "#/components/schemas/AdminLearningProfiles" }
     AdminUser:
       type: object

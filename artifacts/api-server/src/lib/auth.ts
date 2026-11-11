@@ -35,7 +35,7 @@ export function usernameKey(value: string): string {
 }
 
 export function validatePassword(value: unknown): value is string {
-  return typeof value === "string" && value.length >= 10 && value.length <= 128 && !/[\u0000-\u001f\u007f]/.test(value);
+  return typeof value === "string" && value.length >= 6 && value.length <= 128 && !/[\u0000-\u001f\u007f]/.test(value);
 }
 
 async function hashPassword(password: string): Promise<string> {
@@ -59,7 +59,7 @@ export async function verifyPassword(password: string, encoded: string): Promise
 }
 
 export async function makePasswordHash(password: string): Promise<string> {
-  if (!validatePassword(password)) throw new Error("Password must be 10 to 128 characters");
+  if (!validatePassword(password)) throw new Error("Password must be 6 to 128 characters");
   return hashPassword(password);
 }
 
@@ -130,7 +130,7 @@ export async function createAccount(input: { fullName: string; username: string;
   const usernameNormalized = usernameKey(username);
   if (fullName.length < 2 || fullName.length > 80) throw new HttpError(400, "اكتب اسمًا كاملًا من حرفين إلى 80 حرفًا.");
   if (!/^[A-Za-z0-9_]{3,24}$/.test(username)) throw new HttpError(400, "اسم المستخدم من 3 إلى 24 حرفًا: استخدم الإنجليزية والأرقام والشرطة السفلية فقط.");
-  if (!validatePassword(input.password)) throw new HttpError(400, "كلمة المرور مطلوبة بطول 10 إلى 128 حرفًا.");
+  if (!validatePassword(input.password)) throw new HttpError(400, "كلمة المرور مطلوبة بطول 6 إلى 128 حرفًا.");
   const passwordHash = await hashPassword(input.password);
   const id = `user_${randomUUID().replaceAll("-", "")}`;
   const [user] = await db.insert(authUsers).values({

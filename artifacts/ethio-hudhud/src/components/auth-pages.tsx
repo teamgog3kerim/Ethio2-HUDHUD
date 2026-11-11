@@ -3,6 +3,7 @@ import { Link, Redirect, useLocation } from "wouter";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Logo } from "@/components/logo";
+import { PasswordInput } from "@/components/password-input";
 import { Toggles } from "@/components/shell";
 import { Skeleton } from "@/components/bits";
 import { useApp } from "@/lib/app";
@@ -125,10 +126,11 @@ function AuthForm({ mode }: { mode: "in" | "up" }) {
           <input className={`${input} mt-1.5`} dir="ltr" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete={mode === "in" ? "username" : "username"} value={username} minLength={3} maxLength={24} pattern="[A-Za-z0-9_]{3,24}" required onChange={event => setUsername(event.target.value)} data-testid="input-username" />
           {mode === "up" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{t("من 3 إلى 24 حرفًا بالإنجليزية أو رقمًا أو _", "3–24 letters, numbers, or underscores")}</span>}
         </label>
-        <label className="block text-sm font-semibold">{t("كلمة المرور", "Password")}
-          <input className={`${input} mt-1.5`} dir="ltr" type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} minLength={mode === "up" ? 6 : 1} maxLength={128} required onChange={event => setPassword(event.target.value)} data-testid="input-password" />
+        <div>
+          <label htmlFor="auth-password" className="block text-sm font-semibold">{t("كلمة المرور", "Password")}</label>
+          <PasswordInput id="auth-password" className={input} dir="ltr" autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} minLength={mode === "up" ? 6 : 1} maxLength={128} required onChange={event => setPassword(event.target.value)} data-testid="input-password" />
           {mode === "up" && <span className="mt-1 block text-xs font-normal text-muted-foreground">{t("استخدم 6 أحرف على الأقل. لا يوجد استرداد بالبريد الإلكتروني.", "Use at least 6 characters. Email-based password recovery is not available.")}</span>}
-        </label>
+        </div>
         {error && <p role="alert" className="flex gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive" data-testid="text-auth-error"><AlertTriangle className="size-4 shrink-0" />{error}</p>}
         <button type="submit" disabled={pending} className="press inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-bold text-primary-foreground disabled:opacity-60" data-testid={mode === "in" ? "button-login" : "button-register"}>
           {pending ? <Loader2 className="size-4 animate-spin" /> : null}

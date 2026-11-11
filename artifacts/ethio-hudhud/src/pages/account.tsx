@@ -14,6 +14,7 @@ import { useApp } from '@/lib/app';
 import { toInput } from '@/lib/options';
 import { cn } from '@/lib/utils';
 import { SignOutAction } from '@/components/sign-out';
+import { PasswordInput } from '@/components/password-input';
 import { AnalyticsPreference } from '@/components/analytics-preference';
 import { VisitorAnalyticsPreference } from '@/components/visitor-analytics-preference';
 import { InviteFriend } from '@/components/invite-friend';
@@ -126,8 +127,15 @@ export default function Account() {
                   setPasswordMessage(error instanceof Error ? error.message : t('تعذّر تغيير كلمة المرور.', 'Could not change password.'));
                 } finally { setPasswordBusy(false); }
               }}>
-                <label className="block text-sm font-semibold">{t('كلمة المرور الحالية', 'Current password')}<input type="password" autoComplete="current-password" className={cn(input, 'mt-1.5')} value={currentPassword} required maxLength={128} onChange={event => setCurrentPassword(event.target.value)} /></label>
-                <label className="block text-sm font-semibold">{t('كلمة المرور الجديدة', 'New password')}<input type="password" autoComplete="new-password" className={cn(input, 'mt-1.5')} value={newPassword} required minLength={6} maxLength={128} onChange={event => setNewPassword(event.target.value)} /><span className="mt-1 block text-xs font-normal text-muted-foreground">{t('6 أحرف على الأقل.', 'At least 6 characters.')}</span></label>
+                <div>
+                  <label htmlFor="current-password" className="block text-sm font-semibold">{t('كلمة المرور الحالية', 'Current password')}</label>
+                  <PasswordInput id="current-password" autoComplete="current-password" className={input} value={currentPassword} required maxLength={128} onChange={event => setCurrentPassword(event.target.value)} />
+                </div>
+                <div>
+                  <label htmlFor="new-password" className="block text-sm font-semibold">{t('كلمة المرور الجديدة', 'New password')}</label>
+                  <PasswordInput id="new-password" autoComplete="new-password" className={input} value={newPassword} required minLength={6} maxLength={128} onChange={event => setNewPassword(event.target.value)} />
+                  <span className="mt-1 block text-xs font-normal text-muted-foreground">{t('6 أحرف على الأقل.', 'At least 6 characters.')}</span>
+                </div>
                 <div className="sm:col-span-2">
                   <Btn type="submit" disabled={passwordBusy || newPassword.length < 6}>{passwordBusy ? t('جارٍ التحديث…', 'Updating…') : t('حفظ كلمة المرور', 'Save password')}</Btn>
                   {passwordMessage && <p role="status" className="mt-2 text-sm">{passwordMessage}</p>}

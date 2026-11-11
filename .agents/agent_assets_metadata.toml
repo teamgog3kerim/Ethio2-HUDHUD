@@ -23,3 +23,32 @@ uri = "file://artifacts/hudhud-tiktok-promo/public/audio/bg_music.mp3"
 type = "audio"
 title = "bg music"
 description = "Generated music: Warm uplifting world-pop instrumental for a language learning app promo, oud and hand percussion with soft synth pad, 104 BPM, bright confident build, clear accent hits at 3, 9, 15 a…"
+logical_id = "4d360237-3eda-4afb-b276-5a3031f31f27"
+
+[[outputs]]
+id = "HT7XCN1RPH9f6JGwVwliF"
+uri = "file://generated-artifacts/hudhud-qr/ethiohudhud-app-qr.png"
+type = "image"
+title = "Ethio HUDHUD QR Code"
+description = "High-resolution standalone QR code for https://ethiohudhud.com, verified by decoding."
+logical_id = "2e0dc619-6c47-4ecc-a77d-2e8e6fb89e69"
+content_hash = "sha256:fa7706690c16b83075fb4d54ac7be874feb533d93a5fc2792bba032f6a842d58"
+size = 12287
+mtime_ms = 1794387125661
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:3e612faa-2e4d-4ee4-b145-759195952e72/2e0dc619-6c47-4ecc-a77d-2e8e6fb89e69/ff2255fa-44ed-4cef-b03d-3b92ece87bb3"
+storage_version_token = "1794387164712062"
+content_type = "image/png"
+
+[[outputs]]
+id = "vJPgzALo3qX7gaBF_6_sE"
+uri = "file://generated-artifacts/hudhud-qr/ethiohudhud-qr-poster.png"
+type = "image"
+title = "Ethio HUDHUD QR Poster"
+description = "Branded portrait poster with Arabic scan instructions; verified to open https://ethiohudhud.com."
+logical_id = "b858a3db-1684-4012-ae07-8ebf5da69ff2"
+content_hash = "sha256:3a1131b65ad2fbad5760af33015ec31368b1a47d5cf1256acd0be6da529da132"
+size = 133539
+mtime_ms = 1794387126553
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:3e612faa-2e4d-4ee4-b145-759195952e72/b858a3db-1684-4012-ae07-8ebf5da69ff2/e18df687-700d-47f4-a28b-7fee26b87ac1"
+storage_version_token = "1794387165220768"
+content_type = "image/png"

@@ -40,22 +40,34 @@ test('tracker absent, blocked storage, throws and rejected requests never break 
   await new Promise(resolve => setImmediate(resolve));
 });
 
-test('privacy signals and tracker opt-out suppress custom events', () => {
+test('custom events stay blocked until consent; external tracker opt-outs remain respected', () => {
   let calls = 0;
+  const values = new Map();
   const window = {
-    navigator: {}, localStorage: { getItem: () => null },
+    navigator: {},
+    localStorage: {
+      getItem: key => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, String(value)),
+      removeItem: key => values.delete(key),
+    },
     umami: { track: () => { calls++; } },
   };
   const track = analytics(window);
-  track('install_prompt_shown', { platform: 'ios' });
-  assert.equal(calls, 1);
+  track('before consent');
+  assert.equal(calls, 0);
   window.navigator.doNotTrack = '1';
-  track('test');
+  track('while DNT is active');
   window.navigator = { globalPrivacyControl: true };
-  track('test');
+  track('while GPC is active');
+  assert.equal(calls, 0);
+
   window.navigator = {};
-  window.localStorage.getItem = () => '1';
-  track('test');
+  assert.equal(window.hudhudAnalyticsPrivacy.setEnabled(true), true);
+  track('after explicit consent');
+  assert.equal(calls, 1);
+
+  window.localStorage.setItem('umami.disabled', 'external-opt-out');
+  track('after external tracker opt-out');
   assert.equal(calls, 1);
 });
 

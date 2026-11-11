@@ -1,6 +1,10 @@
 import { useEffect, type ReactNode } from 'react';
 import { Redirect, useLocation } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  getGetCoursesQueryKey, getGetCoursesQueryOptions,
+  getGetStudyPlanQueryKey, getGetStudyPlanQueryOptions,
+} from '@workspace/api-client-react';
 import { useBilling } from './billing-notice';
 import { Shell } from './shell';
 import { ErrorState, Skeleton } from './bits';
@@ -15,6 +19,18 @@ export function CourseAccessGate({ children }: { children: ReactNode }) {
   const { t } = useApp();
   const b = billing.data;
   const protectedPage = /^\/(?:dashboard|learn|lesson(?:\/.*)?|fidel|plan|review|tutor)\/?$/.test(location);
+
+  useEffect(() => {
+    if (!protectedPage || !isLoaded || !isSignedIn) return;
+    const query = { staleTime: 30_000 };
+    // Start protected, read-only page requests while the billing gate resolves.
+    // The API still enforces entitlements; the gate never renders content early.
+    if (location === '/learn') {
+      void cache.prefetchQuery(getGetCoursesQueryOptions({ query: { ...query, queryKey: getGetCoursesQueryKey() } }));
+    } else if (location === '/plan') {
+      void cache.prefetchQuery(getGetStudyPlanQueryOptions({ query: { ...query, queryKey: getGetStudyPlanQueryKey() } }));
+    }
+  }, [cache, isLoaded, isSignedIn, location, protectedPage]);
 
   useEffect(() => {
     if (!b?.enforcementEnabled || b.trial.state !== 'active') return;
@@ -36,9 +52,16 @@ export function CourseAccessGate({ children }: { children: ReactNode }) {
   }, [b?.enforcementEnabled, b?.fullCourseAccess, cache]);
 
   if (!protectedPage) return children;
-  if (!isLoaded) return <Shell><Skeleton className="h-64" /></Shell>;
+  const loading = () => (
+    <main className="mx-auto min-h-[55vh] max-w-5xl p-4 sm:p-6" role="status" aria-live="polite">
+      <span className="sr-only">{t('جارٍ التحقق من حسابك…', 'Checking your account…')}</span>
+      <Skeleton className="mb-4 h-10 w-2/3" />
+      <Skeleton className="h-64" />
+    </main>
+  );
+  if (!isLoaded) return loading();
   if (!isSignedIn) return <Redirect to="/sign-up?plan=trial" replace />;
-  if (billing.isLoading) return <Shell><Skeleton className="h-64" /></Shell>;
+  if (billing.isLoading) return loading();
   if (billing.isError || !b) return <Shell><ErrorState what={t('التحقق من صلاحية التعلّم', 'checking learning access')} onRetry={() => void billing.refetch()} /></Shell>;
   // A browser session may activate before its cookie reaches the API. Never
   // bounce a signed-in learner through signup repeatedly or show guest content.

@@ -7,7 +7,7 @@ import { useApp } from '@/lib/app';
 import { RenewalPushSettings } from './renewal-push';
 
 export function useBilling() {
-  return useGetBillingStatus({ query: { queryKey: getGetBillingStatusQueryKey(), refetchInterval: 60_000, refetchOnWindowFocus: true } });
+  return useGetBillingStatus({ query: { queryKey: getGetBillingStatusQueryKey(), staleTime: 30_000, refetchInterval: 60_000, refetchOnWindowFocus: true } });
 }
 
 // Refetch gated content whenever the server's accessible-month set changes.

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock, Lock, MessageCircle, Play } from 'lucide-react';
-import { buildLearningPath, learningStages, useGetCourses } from '@workspace/api-client-react';
+import { buildLearningPath, getGetCoursesQueryKey, learningStages, useGetCourses } from '@workspace/api-client-react';
 import { Am, Card, Empty, ErrorState, PageHead, PilotNote, ProgressBar, Skeleton, btnClass } from '@/components/bits';
 import { Shell } from '@/components/shell';
 import { useApp } from '@/lib/app';
@@ -16,7 +16,7 @@ type View = 'all' | 'courses' | 'conversations';
 export default function Learn() {
   const { t, lang } = useApp();
   const ar = lang === 'ar';
-  const q = useGetCourses();
+  const q = useGetCourses({ query: { queryKey: getGetCoursesQueryKey(), staleTime: 30_000 } });
   const { data: bill } = useBilling();
   const lock = useMonthLock();
   const am = bill?.accessibleMonths;

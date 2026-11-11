@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import { CalendarRange, Check, Lock } from 'lucide-react';
-import { getGetStudyPlanQueryKey, useGetStudyPlan, useGetProfile, useGetProgress } from '@workspace/api-client-react';
+import { getGetProfileQueryKey, getGetStudyPlanQueryKey, useGetStudyPlan, useGetProfile } from '@workspace/api-client-react';
 import { Card, Empty, ErrorState, PageHead, PilotNote, ProgressBar, Skeleton } from '@/components/bits';
 import { Shell } from '@/components/shell';
 import { useApp } from '@/lib/app';
@@ -12,9 +12,8 @@ import { cn } from '@/lib/utils';
 
 export default function Plan() {
   const { t, lang } = useApp();
-  const q = useGetStudyPlan({ query: { queryKey: getGetStudyPlanQueryKey(), staleTime: 0, refetchInterval: 60_000 } });
-  const profile = useGetProfile();
-  const progress = useGetProgress();
+  const q = useGetStudyPlan({ query: { queryKey: getGetStudyPlanQueryKey(), staleTime: 30_000, refetchInterval: 60_000 } });
+  const profile = useGetProfile({ query: { queryKey: getGetProfileQueryKey(), staleTime: 30_000 } });
   const { data: bill } = useBilling();
   const lock = useMonthLock();
   const am = bill?.accessibleMonths;
@@ -25,8 +24,9 @@ export default function Plan() {
   useEffect(() => { if (month === null && current) setMonth(current.month); }, [current, month]);
   const m = month ?? 1;
   const inMonth = days.filter((d) => d.month === m);
-  const done = progress.data?.lessonsCompleted ?? days.filter((d) => d.completed).length;
-  const total = progress.data?.totalLessons ?? days.filter(d => d.type === 'lesson').length;
+  const lessonDays = days.filter(d => d.type === 'lesson');
+  const done = lessonDays.filter(d => d.completed).length;
+  const total = lessonDays.length;
   const schedule = profile.data?.studySchedule;
   const week = days[0]?.currentSuggestedWeek;
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: profile.data?.timezone ?? 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

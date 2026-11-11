@@ -43,7 +43,7 @@ export default function Landing() {
               {t('ابدأ 48 ساعة مجانًا', 'Start 48 free hours')} <Arrow className="size-5" />
             </LinkBtn>
           </div>
-          <p className="mt-3 text-sm text-white/60">{t('سجّل بحساب Google وابدأ فورًا. دون بطاقة.', 'Sign up with Google and start right away. No card.')}</p>
+          <p className="mt-3 text-sm text-white/60">{t('أنشئ حسابًا باسمك واسم مستخدم وكلمة مرور، وابدأ فورًا دون بطاقة.', 'Create an account with your name, username, and password. No card needed.')}</p>
         </div>
       </section>
 

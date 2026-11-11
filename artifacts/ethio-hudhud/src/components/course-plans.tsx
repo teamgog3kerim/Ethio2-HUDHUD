@@ -75,7 +75,7 @@ export function CoursePlans({ onPay, payingPlan, busy, paidOnly = false }: { onP
           {!hideTrial && <Card data-testid="card-plan-trial" className={cls('trial')}>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">{t('تجربة مجانية', 'Free trial')}</p>
             <p className="font-display mt-2 text-3xl font-extrabold">{t('يومان', '48 hours')}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{t('سجّل بحساب Google وابدأ 48 ساعة مجانًا. دون بطاقة.', 'Sign up with Google and get 48 free hours. No card needed.')}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t('أنشئ حسابك باسمك واسم مستخدم وكلمة مرور، وابدأ 48 ساعة مجانًا بلا بطاقة.', 'Create an account with your name, username, and password for 48 free hours. No card needed.')}</p>
             {action('trial', t('ابدأ التجربة', 'Choose trial'))}
           </Card>}
           <Card data-testid="card-plan-monthly" className={cls('monthly')}>

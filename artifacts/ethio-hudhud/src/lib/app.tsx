@@ -8,7 +8,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useGetProfile } from '@workspace/api-client-react';
+import { getGetProfileQueryKey, useGetProfile } from '@workspace/api-client-react';
+import { useAuth } from '@/lib/auth';
 
 export type Lang = 'ar' | 'en';
 
@@ -68,7 +69,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 // The backend profile is the source of truth for language: adopt it whenever
 // a (new) profile identity is loaded.
 function ProfileLangSync() {
-  const { data } = useGetProfile();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { data } = useGetProfile({
+    query: {
+      queryKey: getGetProfileQueryKey(),
+      enabled: isLoaded && isSignedIn,
+      staleTime: 30_000,
+    },
+  });
   const { setLang } = useApp();
   const seen = useRef<string | null>(null);
   useEffect(() => {

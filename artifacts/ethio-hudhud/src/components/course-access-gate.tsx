@@ -13,12 +13,12 @@ import { useApp } from '@/lib/app';
 
 export function CourseAccessGate({ children }: { children: ReactNode }) {
   const [location] = useLocation();
+  const protectedPage = /^\/(?:dashboard|learn|lesson(?:\/.*)?|fidel|plan|review|tutor)\/?$/.test(location);
   const { isLoaded, isSignedIn } = useAuth();
-  const billing = useBilling();
+  const billing = useBilling(protectedPage);
   const cache = useQueryClient();
   const { t } = useApp();
   const b = billing.data;
-  const protectedPage = /^\/(?:dashboard|learn|lesson(?:\/.*)?|fidel|plan|review|tutor)\/?$/.test(location);
 
   useEffect(() => {
     if (!protectedPage || !isLoaded || !isSignedIn) return;

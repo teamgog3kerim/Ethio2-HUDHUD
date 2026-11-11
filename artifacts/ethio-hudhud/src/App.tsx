@@ -1,5 +1,5 @@
 import { getGetAdminAccessQueryKey, useGetAdminAccess } from '@workspace/api-client-react';
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/lib/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthQueryCacheInvalidator } from '@/components/auth-query-cache-invalidator';
@@ -43,7 +43,16 @@ const AdminVisitors = lazy(() => import('@/pages/admin/visitors'));
 const Privacy = lazy(() => import('@/pages/legal').then((m) => ({ default: m.Privacy })));
 const Terms = lazy(() => import('@/pages/legal').then((m) => ({ default: m.Terms })));
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 15_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -86,6 +95,15 @@ function RouteLoading() {
 }
 
 function AppRoutes() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    // Fetch the route chunk while the auth and entitlement checks run so page
+    // code loading does not add another network round trip after the gate.
+    if (location === '/learn') void import('@/pages/learn');
+    else if (location === '/plan') void import('@/pages/plan');
+  }, [location]);
+
   return (
     <>
       <AuthQueryCacheInvalidator />

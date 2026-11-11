@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useRecordVisitorPageview } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
 import { useApp } from '@/lib/app';
+import { sendEthioDeployBeacon } from '@/lib/ethiodeploy-beacon';
 import { VISITOR_ID_KEY, visitorAnalyticsAllowed } from '@/lib/visitor-analytics';
 
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
@@ -64,6 +65,7 @@ export function VisitorPageviewTracker() {
       if (!pageViewId) return;
       const language = lang === 'ar' || lang === 'en' ? lang : 'other';
       mutateRef.current({ data: { visitorId, pageViewId, path, language } });
+      sendEthioDeployBeacon(path, visitorId);
     } catch {
       // Visitor analytics is optional; storage and network failures must not interrupt learning.
     }

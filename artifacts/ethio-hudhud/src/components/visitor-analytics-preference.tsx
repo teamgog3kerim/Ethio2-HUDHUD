@@ -35,7 +35,10 @@ export function VisitorAnalyticsPreference() {
         </span>
       </div>
       <p id="visitor-analytics-description" className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        {t('هذه الموافقة منفصلة عن تحليلات Replit/Umami الاختيارية أعلاه، ومتوقفة افتراضيًا. عند تفعيلها فقط، نرسل معرّف متصفح مجهولًا دوّارًا لمدة 30 يومًا، ومعرّف زيارة جديدًا ومسارًا عامًا ولغة التطبيق. لا نرسل معرّف الحساب أو البريد أو الاسم أو نصوصًا حرة أو موقع البلد من المتصفح. تُحفظ هذه البيانات 90 يومًا؛ والعدادات تقريبية.', 'This is separate from the optional Replit/Umami analytics above and is off by default. Only after opting in, we send a rotating anonymous browser ID for 30 days, a fresh pageview ID, a broad page path and app language. We never send account IDs, email, names, free text, or browser-supplied country. Data is retained for 90 days; counts are approximate.')}
+        {t(
+          'هذا الاختيار منفصل عن تحليلات Replit/Umami ومتوقف افتراضيًا. عند تفعيله، يسجل تقرير الزيارات لدينا معرف متصفح مجهولًا يتجدد كل 30 يومًا، ومعرف مشاهدة جديدًا، ومسارًا عامًا للصفحة ولغة التطبيق. كما نرسل معرّف المشروع والمعرّف المجهول نفسه ومسار الصفحة المنقح إلى منارة EthioDeploy، دون جهة الإحالة أو تفاصيل الأداء. قد تقدّر EthioDeploy البلد من طلب الشبكة. لا نرسل معرّف الحساب أو البريد أو الاسم أو نصوصًا حرة أو موقع المتصفح. نحتفظ ببياناتنا 90 يومًا، أما احتفاظ EthioDeploy فيخضع لإعدادات خدمتها. الأعداد تقريبية وتُعرض كمجاميع فقط.',
+          'This opt-in is separate from Replit/Umami analytics and is off by default. When enabled, our visitor report records a rotating anonymous browser ID (30 days), a fresh pageview ID, a broad page path, and app language. We also send the project ID, same anonymous ID, and normalized page path to EthioDeploy’s beacon; referrer and performance details are omitted. EthioDeploy may estimate country from the network request. We do not send account IDs, email, names, free text, or browser location. Our records are kept for 90 days; EthioDeploy retention follows its service settings. Counts are approximate and shown only in aggregate.',
+        )}
       </p>
       <label className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3 text-sm font-semibold">
         <span>{t('السماح بقياس الزيارات المجهولة', 'Allow anonymous visitor measurement')}</span>

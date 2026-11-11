@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRecordVisitorPageview } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
 import { useApp } from '@/lib/app';
@@ -30,6 +30,7 @@ export function VisitorPageviewTracker() {
   const [location] = useLocation();
   const { lang } = useApp();
   const record = useRecordVisitorPageview();
+  const [consentRevision, setConsentRevision] = useState(0);
   const previousPath = useRef('');
   const mutateRef = useRef(record.mutate);
   mutateRef.current = record.mutate;
@@ -37,10 +38,16 @@ export function VisitorPageviewTracker() {
   useEffect(() => {
     const pathname = window.location.pathname;
     const path = anonymousPath(pathname);
+    if (!path) {
+      previousPath.current = pathname;
+      return;
+    }
+    if (!visitorAnalyticsAllowed()) {
+      previousPath.current = '';
+      return;
+    }
     if (pathname === previousPath.current) return;
     previousPath.current = pathname;
-    if (!path) return;
-    if (!visitorAnalyticsAllowed()) return;
 
     try {
       const now = Date.now();
@@ -69,18 +76,20 @@ export function VisitorPageviewTracker() {
     } catch {
       // Visitor analytics is optional; storage and network failures must not interrupt learning.
     }
-  }, [location, lang]);
+  }, [location, lang, consentRevision]);
 
   useEffect(() => {
-    const clearWhenOptedOut = () => {
-      if (visitorAnalyticsAllowed()) return;
-      try { window.localStorage.removeItem(VISITOR_ID_KEY); } catch { /* Fail closed. */ }
+    const refreshConsent = () => {
+      if (!visitorAnalyticsAllowed()) {
+        try { window.localStorage.removeItem(VISITOR_ID_KEY); } catch { /* Fail closed. */ }
+      }
+      setConsentRevision((revision) => revision + 1);
     };
-    window.addEventListener('hudhud:visitor-analytics-change', clearWhenOptedOut);
-    window.addEventListener('hudhud:analytics-change', clearWhenOptedOut);
+    window.addEventListener('hudhud:visitor-analytics-change', refreshConsent);
+    window.addEventListener('hudhud:analytics-change', refreshConsent);
     return () => {
-      window.removeEventListener('hudhud:visitor-analytics-change', clearWhenOptedOut);
-      window.removeEventListener('hudhud:analytics-change', clearWhenOptedOut);
+      window.removeEventListener('hudhud:visitor-analytics-change', refreshConsent);
+      window.removeEventListener('hudhud:analytics-change', refreshConsent);
     };
   }, []);
   return null;

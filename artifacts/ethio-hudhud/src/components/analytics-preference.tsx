@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '@/lib/app';
 import { getAnalyticsPrivacy, setAnalyticsEnabled } from '@/lib/analytics';
+import { hasPrivacySignal } from '@/lib/visitor-analytics';
 
 export function AnalyticsPreference() {
   const { t } = useApp();
@@ -12,7 +13,7 @@ export function AnalyticsPreference() {
     refresh();
     return () => window.removeEventListener('hudhud:analytics-change', refresh);
   }, []);
-  const locked = state.reason === 'browser' || state.reason === 'tracker' || state.reason === 'storage';
+  const locked = state.reason === 'tracker' || state.reason === 'storage';
 
   return (
     <section className="my-6 space-y-3 rounded-2xl border border-border p-5" aria-labelledby="analytics-heading">
@@ -36,13 +37,15 @@ export function AnalyticsPreference() {
       <p id="analytics-status" role="status" className="text-sm text-muted-foreground">
         {error || state.reason === 'storage'
           ? t('تعذّر الوصول إلى تخزين المتصفح أو حفظ الاختيار. التحليلات الاختيارية متوقفة؛ تحقق من إعدادات المتصفح.', 'Browser storage is unavailable or the choice could not be saved. Optional analytics is off; check browser settings.')
-          : state.reason === 'browser'
-            ? t('متوقفة احترامًا لإشارة عدم التتبع أو التحكم العالمي بالخصوصية في متصفحك.', 'Off to respect your browser’s Do Not Track or Global Privacy Control signal.')
-            : state.reason === 'tracker'
-              ? t('متوقفة بسبب إعداد منع تتبع موجود في متصفحك. لن نلغي هذا الإعداد.', 'Off because an existing tracker opt-out is set in your browser. We will not override it.')
-              : state.enabled
-                ? t('مسموح بها عند توفر خدمة التحليلات. إعادة التفعيل تُحدّث الصفحة؛ لا نعيد إرسال أحداث سابقة.', 'Allowed when analytics is available. Re-enabling reloads the page; past events are not replayed.')
-                : t('متوقفة. لن تُرسل زيارات صفحات أو أحداث اختيارية جديدة.', 'Off. No new optional pageviews or events will be sent.')}
+          : state.reason === 'tracker'
+            ? t('يوجد إعداد إيقاف تتبع من أداة أخرى؛ لن نتجاوزه.', 'Another tracker opt-out is active; we will not override it.')
+            : state.enabled && hasPrivacySignal()
+              ? t('فعّلت التحليلات لهذا الموقع صراحةً رغم إشارة المتصفح. يطبق اختيارك على هذا المتصفح فقط.', 'You explicitly enabled analytics for this site despite your browser signal. This choice applies to this browser only.')
+              : state.reason === 'browser'
+                ? t('يرسل متصفحك إشارة عدم التتبع أو التحكم العالمي بالخصوصية. تبقى التحليلات متوقفة حتى تفعّلها صراحةً هنا لهذا الموقع.', 'Your browser sends a Do Not Track or Global Privacy Control signal. Analytics stays off until you explicitly enable it here for this site.')
+                : state.enabled
+                  ? t('مسموح بها عند توفر خدمة التحليلات. إعادة التفعيل تُحدّث الصفحة؛ لا نعيد إرسال أحداث سابقة.', 'Allowed when analytics is available. Re-enabling reloads the page; past events are not replayed.')
+                  : t('متوقفة افتراضيًا. فعّلها هنا للسماح بالتحليلات الاختيارية على هذا المتصفح فقط.', 'Off by default. Turn it on here to allow optional analytics in this browser only.')}
       </p>
       <p className="text-xs text-muted-foreground">{t('لا يؤثر ذلك على التعلّم أو تسجيل الدخول أو عدّادات التشغيل الضرورية أو سجلات الاستضافة، ولا يحذف بيانات أُرسلت سابقًا.', 'This does not affect learning, sign-in, necessary operational counters, or hosting logs, and does not delete data already sent.')}</p>
     </section>

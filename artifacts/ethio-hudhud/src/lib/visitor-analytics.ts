@@ -37,7 +37,7 @@ export function setVisitorConsent(enabled: boolean): boolean {
 
 export function visitorAnalyticsAllowed(): boolean {
   try {
-    if (typeof window === 'undefined' || hasPrivacySignal()) return false;
+    if (typeof window === 'undefined') return false;
     return readVisitorConsent() === 'on' && getAnalyticsPrivacy().enabled;
   } catch {
     return false;

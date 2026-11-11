@@ -33,8 +33,6 @@ export function trackEvent(name: string, data?: AnalyticsData): void {
   if (typeof window === 'undefined') return;
   try {
     if (!getAnalyticsPrivacy().enabled) return;
-    const privacy = window.navigator as Navigator & { globalPrivacyControl?: boolean };
-    if (privacy.doNotTrack === '1' || privacy.globalPrivacyControl === true) return;
     if (window.localStorage.getItem('umami.disabled')) return;
     // No tracker means analytics is disabled, not loaded yet, or unavailable.
     // Do not inject one, retry, or replay events if settings change later.

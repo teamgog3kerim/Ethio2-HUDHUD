@@ -12,19 +12,20 @@
       var browserBlocked = dnt === '1' || dnt === 1 || dnt === 'yes' ||
         nav.globalPrivacyControl === true;
       var storage = window.localStorage;
-      var optedOut = storage.getItem(preferenceKey) === 'off';
+      var explicitOptIn = storage.getItem(preferenceKey) === 'on';
       var trackerValue = storage.getItem(trackerKey);
       var externalOptOut = !!trackerValue && trackerValue !== ownedOptOut;
-      if ((browserBlocked || optedOut || failed) && !trackerValue) {
+      if ((!explicitOptIn || failed) && !trackerValue) {
         storage.setItem(trackerKey, ownedOptOut);
-      } else if (!browserBlocked && !optedOut && !failed && trackerValue === ownedOptOut) {
+      } else if (explicitOptIn && !failed && trackerValue === ownedOptOut) {
         // Never remove an opt-out set by a visitor, extension, or another tool.
         storage.removeItem(trackerKey);
       }
       return {
-        enabled: !browserBlocked && !externalOptOut && !optedOut && !failed,
-        reason: failed ? 'storage' : browserBlocked ? 'browser' :
-          externalOptOut ? 'tracker' : optedOut ? 'preference' : null,
+        enabled: explicitOptIn && !externalOptOut && !failed,
+        reason: failed ? 'storage' : externalOptOut ? 'tracker' :
+          !explicitOptIn && browserBlocked ? 'browser' :
+            !explicitOptIn ? 'preference' : null,
       };
     } catch (_) {
       return { enabled: false, reason: 'storage' };
